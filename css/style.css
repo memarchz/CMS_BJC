@@ -1,0 +1,70 @@
+:root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px)
+}
+
+html {
+    scroll-padding-top: env(safe-area-inset-top, 0px)
+}
+
+body {
+    font-family: 'Prompt', system-ui, sans-serif;
+    background: #f3f4f6;
+    color: #0f172a;
+    min-height: 100%
+}
+
+.inp {
+    width: 100%;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    padding: .55rem .75rem;
+    background: #fff;
+    font-size: .9rem;
+    outline: none;
+    transition: border .15s, box-shadow .15s
+}
+
+.inp:focus {
+    border-color: #15803d;
+    box-shadow: 0 0 0 3px #15803d33
+}
+
+.inp.bad {
+    border-color: #dc2626;
+    background: #fef2f2
+}
+
+.inp[readonly] {
+    background: #f1f5f9;
+    color: #475569
+}
+
+.fadein {
+    animation: f .25s ease
+}
+
+@keyframes f {
+    from {
+        opacity: .4;
+        transform: translateY(4px)
+    }
+
+    to {
+        opacity: 1;
+        transform: none
+    }
+}
+
+@media (prefers-reduced-motion:reduce) {
+    .fadein {
+        animation: none
+    }
+}
+
+.brand {
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: #15803d
+}

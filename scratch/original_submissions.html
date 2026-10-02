@@ -1,0 +1,88 @@
+Created At: 2026-10-02T09:17:44+07:00
+Completed At: 2026-10-02T09:17:44+07:00
+File Path: `file:///c:/Users/hp/Downloads/supplier-portal%20%281%29/submissions.html`
+Total Lines: 112
+Total Bytes: 5553
+Showing lines 1 to 80
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: <!DOCTYPE html>
+2: <html lang="th">
+3: 
+4: <head>
+5:   <meta charset="utf-8">
+6:   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+7:   <meta name="color-scheme" content="light">
+8:   <title>รายการที่ส่งมา | SUPPLIER PORTAL</title>
+9:   <script>const _twWarn = console.warn; console.warn = (...a) => { if (typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss.com')) return; _twWarn(...a); };</script>
+10:   <script src="https://cdn.tailwindcss.com"></script>
+11:   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+12:   <link rel="stylesheet" href="css/style.css">
+13: </head>
+14: 
+15: <body>
+16:   <header class="bg-white border-b sticky top-0 z-20" style="top:env(safe-area-inset-top,0px)">
+17:     <div class="w-full px-6 md:px-12 py-3.5 flex items-center justify-between gap-3 flex-wrap">
+18:       <div class="flex items-center gap-3 flex-wrap">
+19:         <a href="index.html" class="flex items-center gap-2.5 group mr-2">
+20:           <img src="img/logo.png" alt="Supplier Portal" class="w-8 h-8 object-contain drop-shadow-sm">
+21:           <span
+22:             class="font-bold text-xl text-gray-900 tracking-tight group-hover:text-[#0b6330] transition-colors">Supplier
+23:             Portal</span>
+24:         </a>
+25:         <span id="lb" class="text-xs px-2.5 py-1 rounded-full bg-gray-200 font-semibold"></span>
+26:         <span id="who" class="text-sm text-gray-500"></span>
+27:       </div>
+28:       <div class="flex items-center gap-2">
+29:         <a href="form.html"
+30:           class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg px-4 py-2 transition-colors">กรอกฟอร์มใหม่</a>
+31:         <button onclick="Auth.logout()"
+32:           class="text-sm border rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">ออกจากระบบ</button>
+33:       </div>
+34:     </div>
+35:     <div class="w-full px-6 md:px-12 pb-3 font-bold text-lg" id="lt"></div>
+36:   </header>
+37: 
+38:   <main class="max-w-5xl mx-auto px-4 py-6">
+39:     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4" id="stats"></div>
+40: 
+41:     <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+42:       <div class="font-semibold mb-3">จำนวนรายการแยกตาม Category</div>
+43:       <div id="bars" class="space-y-2"></div>
+44:     </div>
+45: 
+46:     <div class="flex flex-wrap gap-2 mb-3">
+47:       <select id="fSrc" onchange="drawList()" class="inp !w-auto">
+48:         <option value="">ต้นทาง: ทั้งหมด</option>
+49:         <option value="supplier">จาก Supplier</option>
+50:         <option value="buyer">จาก Buyer</option>
+51:       </select>
+52:       <select id="fCat" onchange="drawList()" class="inp !w-auto"></select>
+53:       <input id="fQ" oninput="drawList()" class="inp !w-auto flex-1 min-w-[160px]"
+54:         placeholder="ค้นหา ชื่อ รุ่น Supplier ผู้ส่ง">
+55:     </div>
+56: 
+57:     <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+58:       <table class="w-full text-sm min-w-[860px]">
+59:         <thead class="bg-gray-100 text-gray-700 text-left">
+60:           <tr>
+61:             <th class="p-3">วันที่ส่ง</th>
+62:             <th class="p-3">รายการ</th>
+63:             <th class="p-3">Category</th>
+64:             <th class="p-3">Sub Category</th>
+65:             <th class="p-3">ผู้ส่ง</th>
+66:             <th class="p-3">สถานะ</th>
+67:             <th class="p-3 text-right">การจัดการ</th>
+68:           </tr>
+69:         </thead>
+70:         <tbody id="rows"></tbody>
+71:       </table>
+72:       <div id="empty" class="hidden p-12 text-center text-gray-500">
+73:         <p class="mb-3 text-base">ยังไม่มีรายการที่ส่งเข้ามา</p>
+74:         <button onclick="resetMockData()"
+75:           class="bg-green-700 hover:bg-green-800 text-white text-xs px-4 py-2 rounded-xl font-medium shadow-sm transition-colors">โหลดข้อมูลตัวอย่าง
+76:           (Mock Data 6 รายการ)</button>
+77:       </div>
+78:     </div>
+79: 
+80:     <div class="flex items-center justify-between text-xs text-gray-500 mt-3">
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

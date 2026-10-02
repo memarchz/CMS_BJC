@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Admin Dashboard & สิทธิ์ Buyer | SUPPLIER PORTAL</title>
+  <script>const _twWarn = console.warn; console.warn = (...a) => { if (typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss.com')) return; _twWarn(...a); };</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif;
+      background-color: #f8fafc;
+    }
+
+    .sidebar-link {
+      transition: all 0.15s ease-in-out;
+    }
+
+    .sidebar-link.active {
+      background-color: #e6f7f0;
+      color: #059669;
+      font-weight: 600;
+    }
+
+    .sidebar-link:not(.active):hover {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-gray-900 min-h-screen flex flex-col">
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-xs">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      <!-- Left: Logo & Role Pill -->
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="toggleSidebar()"
+          class="lg:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <img src="img/logo.png" alt="Supplier Portal" class="w-8 h-8 object-contain drop-shadow-sm">
+          <span
+            class="font-bold text-xl text-gray-900 tracking-tight group-hover:text-emerald-700 transition-colors">Supplier
+            Portal</span>
+        </a>
+        <div class="flex items-center gap-2 ml-2">
+          <span id="lb"
+            class="text-xs px-3 py-0.5 rounded-full bg-gray-100 text-gray-700 font-semibold border border-gray-200">Admin</span>
+          <span id="role-sublabel" class="text-xs text-gray-400 font-normal hidden sm:inline">ผู้ดูแลระบบ</span>
+        </div>
+      </div>
+
+      <!-- Right: Notification, Profile, Actions -->
+      <div class="flex items-center gap-3">
+        <!-- Notification Bell with Red Dot -->
+        <div class="relative">
+          <button type="button" onclick="toggleNotifDropdown()" id="btnNotif"
+            class="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+              </path>
+            </svg>
+            <span id="notif-badge"
+              class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+          </button>
+
+          <!-- Notification Dropdown Menu -->
+          <div id="notifDropdown"
+            class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-3 z-50 text-xs">
+            <div class="font-bold text-gray-800 pb-2 border-b border-gray-100 flex items-center justify-between">
+              <span>การแจ้งเตือนระบบ</span>
+              <span class="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-semibold">2 ใหม่</span>
+            </div>
+            <div class="py-2 space-y-2 max-h-60 overflow-y-auto">
+              <div class="p-2.5 bg-rose-50 rounded-xl border border-rose-100 text-rose-900">
+                <div class="font-semibold">มีรายการส่งคืนให้ Buyer แก้ไข</div>
+                <div class="text-[11px] text-gray-600 mt-0.5">กล้องวงจรปิด Hikvision NVR รอ Buyer ดำเนินการ</div>
+              </div>
+              <div class="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-900">
+                <div class="font-semibold">คู่ค้าส่งเอกสารใหม่</div>
+                <div class="text-[11px] text-gray-600 mt-0.5">ตู้แช่เย็น Daikin FTV50 จาก บริษัท ตัวอย่างซัพพลาย จำกัด
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile Avatar & Name -->
+        <div class="relative">
+          <button type="button" onclick="toggleUserDropdown()"
+            class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-100 transition-colors">
+            <div
+              class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd">
+                </path>
+              </svg>
+            </div>
+            <span id="who" class="text-sm font-semibold text-gray-800 hidden md:inline">Admin</span>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+
+          <!-- User Dropdown Menu -->
+          <div id="userDropdown"
+            class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50 text-xs">
+            <div class="p-2 border-b border-gray-100 mb-1">
+              <div class="font-bold text-gray-900" id="dd-name">Admin</div>
+              <div class="text-gray-400 text-[11px]" id="dd-email">admin@demo.co.th</div>
+            </div>
+            <a href="form.html"
+              class="flex items-center gap-2 p-2 rounded-xl text-gray-700 hover:bg-gray-50 font-medium">
+              <span>กรอกฟอร์มใหม่</span>
+            </a>
+            <button type="button" onclick="resetMockData()"
+              class="w-full text-left flex items-center gap-2 p-2 rounded-xl text-gray-700 hover:bg-gray-50 font-medium">
+              <span>รีเซ็ตข้อมูล Mock Data</span>
+            </button>
+            <div class="border-t border-gray-100 my-1"></div>
+            <button type="button" onclick="Auth.logout()"
+              class="w-full text-left flex items-center gap-2 p-2 rounded-xl text-rose-600 hover:bg-rose-50 font-medium">
+              <span>ออกจากระบบ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN BODY LAYOUT: SIDEBAR + CONTENT -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- LEFT SIDEBAR (Matching Mockup) -->
+    <aside id="sidebar"
+      class="w-64 bg-white border-r border-gray-100 flex flex-col justify-between shrink-0 fixed inset-y-0 left-0 z-40 transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out top-[57px]">
+      <!-- Navigation Links -->
+      <div class="p-4 space-y-1.5">
+        <a href="javascript:void(0)" onclick="navClick('home')" id="nav-home"
+          class="sidebar-link active flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium">
+          <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+            </path>
+          </svg>
+          <span>หน้าหลัก</span>
+        </a>
+        <a href="javascript:void(0)" onclick="navClick('perms')" id="nav-perms"
+          class="sidebar-link flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-gray-600">
+          <svg class="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+            </path>
+          </svg>
+          <span>จัดการสิทธิ์ Buyer</span>
+        </a>
+        <a href="javascript:void(0)" onclick="navClick('suppliers')" id="nav-suppliers"
+          class="sidebar-link flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-gray-600">
+          <svg class="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+            </path>
+          </svg>
+          <span>รายชื่อ Supplier</span>
+        </a>
+      </div>
+
+      <!-- Bottom Mini Widget -->
+      <div class="p-4 border-t border-gray-100">
+        <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3 text-xs">
+          <div
+            class="w-8 h-8 rounded-xl bg-slate-800 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+              </path>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-gray-900">Admin Full View</div>
+            <div class="text-[11px] text-gray-500">มองเห็นทุก Category</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+
+    <!-- MAIN DASHBOARD CONTENT AREA -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto space-y-6">
+
+      <!-- VIEW 1: DASHBOARD OVERVIEW -->
+      <section id="view-dashboard" class="space-y-6">
+
+      <!-- 1. HERO BANNER: Admin Full View (Matching Mockup) -->
+      <div id="hero-admin-banner"
+        class="bg-gradient-to-r from-[#dcfce7]/90 via-[#e0f7ee]/90 to-[#e0f2fe]/80 border border-emerald-200/60 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex items-start gap-4">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-xl shadow-sm shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+              </path>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <h2 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Admin Full View</h2>
+              <span
+                class="bg-[#dcfce7] text-emerald-800 border border-emerald-300 text-xs font-semibold px-3 py-0.5 rounded-full">
+                ทุก Category
+              </span>
+            </div>
+            <p class="text-sm text-gray-600 mt-1.5 leading-relaxed">
+              คุณสามารถดูข้อมูล จัดการสิทธิ์ของ Buyer<br class="hidden sm:inline">
+              และเข้าถึงข้อมูล Supplier ได้ทุก Category ในระบบ
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-5 justify-between lg:justify-end">
+          <!-- Clean Laptop Checklist Vector Illustration -->
+          <div class="hidden md:flex items-center justify-center">
+            <svg class="w-24 h-16" viewBox="0 0 100 68" fill="none">
+              <rect x="10" y="8" width="80" height="48" rx="5" fill="#047857" />
+              <rect x="15" y="13" width="70" height="38" rx="3" fill="#f0fdf4" />
+              <path d="M26 23 L31 28 L43 18" stroke="#059669" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M26 37 L31 42 L43 32" stroke="#059669" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <line x1="48" y1="23" x2="74" y2="23" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" />
+              <line x1="48" y1="37" x2="74" y2="37" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" />
+              <path d="M2 58 L98 58 L94 64 L6 64 Z" fill="#94a3b8" />
+            </svg>
+          </div>
+          <!-- CTA Button -->
+          <button type="button" onclick="openPermModal()"
+            class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm px-5 py-3 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+              </path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>กำหนดสิทธิ์ Category ของ Buyer &rarr;</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. FOUR METRIC CARDS (Matching Mockup) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="stats-container">
+        <!-- Card 1 (Green): ทั้งหมด (Buyer) -->
+        <div
+          class="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div>
+            <div
+              class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg mb-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                </path>
+              </svg>
+            </div>
+            <div class="text-xs text-gray-500 font-medium">ทั้งหมด (Buyer)</div>
+            <div id="stat-buyers-count" class="text-3xl font-bold text-gray-900 mt-1">12</div>
+          </div>
+          <button type="button" onclick="switchTableTab('buyers')"
+            class="text-xs text-emerald-700 font-semibold hover:underline flex items-center gap-1 mt-3">
+            <span>ดูรายชื่อ Buyer ทั้งหมด</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <!-- Card 2 (Blue): รออนุมัติ / ส่งคืน -->
+        <div
+          class="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div>
+            <div
+              class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg mb-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="text-xs text-gray-500 font-medium">รออนุมัติ</div>
+            <div id="stat-pending-count" class="text-3xl font-bold text-gray-900 mt-1">2</div>
+          </div>
+          <button type="button" onclick="filterByStatus('รอ Buyer ตรวจ')"
+            class="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1 mt-3">
+            <span>ดูรายละเอียด</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <!-- Card 3 (Purple): ตรวจสิทธิ์ Category -->
+        <div
+          class="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div>
+            <div
+              class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-lg mb-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="text-xs text-gray-500 font-medium">ตรวจสิทธิ์ Category</div>
+            <div id="stat-perms-count" class="text-3xl font-bold text-gray-900 mt-1">3</div>
+          </div>
+          <button type="button" onclick="openPermModal()"
+            class="text-xs text-purple-600 font-semibold hover:underline flex items-center gap-1 mt-3">
+            <span>ดูรายละเอียด</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <!-- Card 4 (Orange): จาก Supplier -->
+        <div
+          class="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div>
+            <div
+              class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-lg mb-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                </path>
+              </svg>
+            </div>
+            <div class="text-xs text-gray-500 font-medium">จาก Supplier</div>
+            <div id="stat-suppliers-count" class="text-3xl font-bold text-gray-900 mt-1">28</div>
+          </div>
+          <button type="button" onclick="openSupplierModal()"
+            class="text-xs text-amber-700 font-semibold hover:underline flex items-center gap-1 mt-3">
+            <span>ดูรายชื่อ Supplier ทั้งหมด</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. CATEGORY PROGRESS OVERVIEW CARD (Matching Mockup) -->
+      <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                </path>
+              </svg>
+            </div>
+            <h3 class="font-bold text-base text-gray-900">ภาพรวมรายการกำหนดสิทธิ์ Category</h3>
+          </div>
+          <button type="button" onclick="openPermModal()"
+            class="text-xs text-gray-500 hover:text-emerald-700 font-medium flex items-center gap-1">
+            <span>ดูรายละเอียดทั้งหมด</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <!-- Progress Bars List with Clean Vector Icons -->
+        <div id="cat-progress-bars" class="space-y-3.5">
+          <!-- Dynamic category progress bars rendered via JS -->
+        </div>
+      </div>
+
+      <!-- 4. TABLE SECTION CONTAINER WITH TAB SWITCHER & FILTERS -->
+      <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs space-y-4">
+
+        <!-- Table View Tabs: Tab 1 (Buyer View - Mockup) & Tab 2 (Document Submissions - with Return action) -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
+          <div class="flex items-center gap-2 bg-gray-100/80 p-1 rounded-2xl w-fit">
+            <button type="button" id="tab-btn-buyers" onclick="switchTableTab('buyers')"
+              class="px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-white text-emerald-800 shadow-xs flex items-center gap-1.5">
+              <span>สิทธิ์และสถานะ Buyer</span>
+              <span id="tab-buyers-badge"
+                class="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.2 rounded-full font-bold">4</span>
+            </button>
+            <button type="button" id="tab-btn-subs" onclick="switchTableTab('subs')"
+              class="px-4 py-2 rounded-xl text-xs font-semibold transition-all text-gray-600 hover:text-gray-900 flex items-center gap-1.5">
+              <span>รายการเอกสารทรัพย์สิน (ส่งคืน/ตรวจสอบ)</span>
+              <span id="tab-subs-badge"
+                class="bg-gray-200 text-gray-700 text-[10px] px-2 py-0.2 rounded-full font-bold">0</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs flex-wrap">
+            <button type="button" onclick="openPermModal()" id="btnTopPerms"
+              class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition-colors shadow-2xs">
+              <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+              </svg>
+              <span>กำหนดสิทธิ์ Category</span>
+            </button>
+            <button type="button" onclick="openReturnModal()" id="btnTopReturn"
+              class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+              </svg>
+              <span>ส่งคืนเอกสารให้ Buyer</span>
+            </button>
+            <a href="form.html"
+              class="bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1 transition-colors">
+              <span>+ กรอกข้อมูลใหม่</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Filter Bar (Matching Mockup exactly) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 items-end pt-1">
+          <!-- Dropdown 1: ค้นหา Buyer -->
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-500 mb-1">ค้นหา Buyer</label>
+            <select id="fBuyer" onchange="applyFilters()" class="inp text-xs !py-2 !rounded-xl">
+              <option value="">ชื่อ / อีเมล / เบอร์โทร</option>
+            </select>
+          </div>
+
+          <!-- Dropdown 2: Category -->
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-500 mb-1">Category</label>
+            <select id="fCat" onchange="applyFilters()" class="inp text-xs !py-2 !rounded-xl">
+              <option value="">ทั้งหมด</option>
+            </select>
+          </div>
+
+          <!-- Dropdown 3: สถานะ -->
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-500 mb-1">สถานะ</label>
+            <select id="fStatus" onchange="applyFilters()" class="inp text-xs !py-2 !rounded-xl">
+              <option value="">ทั้งหมด</option>
+              <option value="ใช้งานอยู่">ใช้งานอยู่</option>
+              <option value="รออนุมัติ">รออนุมัติ</option>
+              <option value="รอ Buyer ตรวจ">รอ Buyer ตรวจ</option>
+              <option value="ส่งคืนให้ Buyer แก้ไข">ส่งคืนให้ Buyer แก้ไข</option>
+              <option value="ตรวจ/แก้ไขแล้ว">ตรวจ/แก้ไขแล้ว</option>
+            </select>
+          </div>
+
+          <!-- Search Input: ค้นหา Supplier / Buyer... -->
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-500 mb-1">ค้นหาคำค้น</label>
+            <div class="relative">
+              <input id="fQ" type="text" oninput="applyFilters()" placeholder="ค้นหา Supplier / Buyer..."
+                class="inp text-xs !py-2 !rounded-xl w-full pl-8">
+              <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-3" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Reset Filter Button -->
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="resetFilters()"
+              class="w-full border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 h-[38px]">
+              <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
+              </svg>
+              <span>รีเซ็ต</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 5A. BUYER PERMISSIONS TABLE (Matching Mockup 100%) -->
+        <div id="section-buyer-table" class="overflow-x-auto rounded-2xl border border-gray-100">
+          <table class="w-full text-xs sm:text-sm text-left">
+            <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-100">
+              <tr>
+                <th class="p-3 w-10 text-center"><input type="checkbox"
+                    class="rounded text-emerald-600 focus:ring-emerald-500"></th>
+                <th class="p-3 w-14">ลำดับ</th>
+                <th class="p-3">ชื่อ Buyer</th>
+                <th class="p-3">อีเมล</th>
+                <th class="p-3">Category ที่เข้าถึง</th>
+                <th class="p-3">สถานะ</th>
+                <th class="p-3 whitespace-nowrap">วันที่อัปเดต</th>
+                <th class="p-3 text-right">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="buyer-table-rows" class="divide-y divide-gray-100">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+          <div id="buyer-table-empty" class="hidden p-8 text-center text-gray-400 text-sm">
+            ไม่พบบัญชี Buyer ตามเงื่อนไขที่ค้นหา
+          </div>
+        </div>
+
+        <!-- 5B. DOCUMENT SUBMISSIONS TABLE (Showing items with Return to Buyer action) -->
+        <div id="section-subs-table" class="hidden overflow-x-auto rounded-2xl border border-gray-100">
+          <table class="w-full text-xs sm:text-sm text-left">
+            <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-100">
+              <tr>
+                <th class="p-3 w-10 text-center"><input type="checkbox"
+                    class="rounded text-emerald-600 focus:ring-emerald-500"></th>
+                <th class="p-3">วันที่ส่ง</th>
+                <th class="p-3">รายการ / ทรัพย์สิน</th>
+                <th class="p-3">Category</th>
+                <th class="p-3">ผู้ส่ง (Supplier)</th>
+                <th class="p-3">สถานะ</th>
+                <th class="p-3 text-right">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="subs-table-rows" class="divide-y divide-gray-100">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+          <div id="subs-table-empty" class="hidden p-10 text-center text-gray-400">
+            <p class="mb-2">ยังไม่มีรายการที่ส่งเข้ามา</p>
+            <button onclick="resetMockData()"
+              class="bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl">รีโหลด Mock Data</button>
+          </div>
+        </div>
+
+      </div>
+      </section>
+
+      <!-- VIEW 2: จัดการสิทธิ์ CATEGORY ของ BUYER (หน้าเต็ม Full View - ไม่ใช่ป๊อปอัป) -->
+      <section id="view-buyer-perms" class="hidden space-y-6 animate-fadein">
+        <!-- Top Bar with Back Button & Breadcrumbs -->
+        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-xs text-gray-500 mb-1.5">
+              <a href="javascript:void(0)" onclick="showAdminView('dashboard')" class="hover:text-emerald-700 flex items-center gap-1 font-medium transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span>หน้าหลัก</span>
+              </a>
+              <span>/</span>
+              <span class="text-emerald-800 font-semibold">จัดการสิทธิ์ Category ของ Buyer</span>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">กำหนดสิทธิ์ Category สำหรับ Buyer</h1>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                Full Page Management
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1 leading-relaxed">
+              ระบุหมวดหมู่เครื่องจักรและทรัพย์สินที่อนุญาตให้ Buyer แต่ละท่านมองเห็นและมีสิทธิ์ตรวจสอบ (Buyer มองเห็นเฉพาะ Category ที่ได้รับสิทธิ์)
+            </p>
+          </div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button type="button" onclick="showAdminView('dashboard')"
+              class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm flex items-center gap-2 shadow-2xs transition-colors">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+              <span>กลับหน้าหลัก</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Master-Detail 2-Column Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- LEFT COLUMN: Buyer Accounts Selector (4 cols on lg) -->
+          <div class="lg:col-span-4 bg-white rounded-3xl border border-gray-100 p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-gray-100">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+                <h2 class="font-bold text-sm text-gray-900">รายชื่อ Buyer ในระบบ</h2>
+              </div>
+              <span id="full-buyer-count-tag" class="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">4 คน</span>
+            </div>
+
+            <!-- Buyer Search Input -->
+            <div class="relative">
+              <input id="fullBuyerSearch" type="text" oninput="filterBuyerListFullPage()"
+                placeholder="ค้นหาชื่อหรืออีเมล Buyer..."
+                class="inp text-xs !py-2.5 !pl-9">
+              <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+
+            <!-- Buyer Card List Container -->
+            <div id="full-buyer-list" class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+              <!-- Rendered dynamically via JS -->
+            </div>
+
+            <!-- Add Buyer Quick Form -->
+            <div class="pt-3 border-t border-gray-100 space-y-2">
+              <div class="text-[11px] font-bold text-gray-600 uppercase tracking-wider">เพิ่มบัญชี Buyer ใหม่</div>
+              <div class="flex items-center gap-1.5">
+                <input id="fullNewBuyerEmail" type="email" placeholder="เช่น buyer5@demo.co.th" class="inp text-xs !py-2 flex-1">
+                <button type="button" onclick="addNewBuyerFullPage()"
+                  class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-colors shrink-0 shadow-2xs">
+                  + เพิ่ม
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Active Buyer Category Matrix (8 cols on lg) -->
+          <div class="lg:col-span-8 space-y-5">
+            <!-- Active Buyer Header & Preset Toolbar -->
+            <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+                <div class="flex items-center gap-3.5">
+                  <div id="full-active-avatar"
+                    class="w-12 h-12 rounded-2xl bg-emerald-700 text-white font-bold flex items-center justify-center text-lg shadow-xs shrink-0">
+                    B
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 id="full-active-buyer-name" class="font-bold text-base text-gray-900">Buyer สมศักดิ์</h3>
+                      <span class="text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full">Buyer Account</span>
+                    </div>
+                    <div id="full-active-buyer-email" class="text-xs text-gray-500 font-mono mt-0.5">buyer@demo.co.th</div>
+                  </div>
+                </div>
+
+                <!-- Perms Stat & Quick Select/Deselect -->
+                <div class="flex items-center gap-3">
+                  <div class="text-right">
+                    <div class="text-[11px] text-gray-400 font-medium">สิทธิ์ที่เปิดใช้งาน</div>
+                    <div id="full-active-perm-stat" class="text-sm font-bold text-emerald-800">0 จาก 14 หมวดหมู่</div>
+                  </div>
+                  <div class="h-8 w-px bg-gray-200"></div>
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="fullPermSelectAll(true)"
+                      class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition-colors">
+                      เลือกทั้งหมด
+                    </button>
+                    <button type="button" onclick="fullPermSelectAll(false)"
+                      class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-gray-50 text-gray-600 hover:bg-rose-50 hover:text-rose-700 border border-gray-200 transition-colors">
+                      ยกเลิกทั้งหมด
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Preset Category Shortcut Pills -->
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <span class="text-xs text-gray-500 font-medium">ชุดหมวดหมู่สำเร็จรูป:</span>
+                <button type="button" onclick="fullPermApplyPreset('hvac')"
+                  class="px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 text-emerald-900 text-xs font-medium transition-colors">
+                  เครื่องเย็น & HVAC
+                </button>
+                <button type="button" onclick="fullPermApplyPreset('elec')"
+                  class="px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 text-emerald-900 text-xs font-medium transition-colors">
+                  ไฟฟ้า & ปลอดภัย
+                </button>
+                <button type="button" onclick="fullPermApplyPreset('logistics')"
+                  class="px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 text-emerald-900 text-xs font-medium transition-colors">
+                  คลัง & ขนส่ง
+                </button>
+                <button type="button" onclick="fullPermApplyPreset('super')"
+                  class="px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 text-emerald-900 text-xs font-medium transition-colors">
+                  อุปกรณ์ครัว/สด
+                </button>
+              </div>
+            </div>
+
+            <!-- Category Cards Grid Container -->
+            <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-gray-900">รายการหมวดหมู่เครื่องจักร (14 หมวด)</span>
+                  <span class="text-xs text-gray-400 font-normal">คลิกที่การ์ดเพื่อ เปิด/ปิด สิทธิ์</span>
+                </div>
+                <div class="relative w-full sm:w-64">
+                  <input id="catCardSearch" type="text" oninput="filterCatCardsFullPage()"
+                    placeholder="ค้นหาชื่อหมวดหมู่..." class="inp text-xs !py-2 !pl-8">
+                  <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+              </div>
+
+              <!-- 14 Interactive Category Cards -->
+              <div id="full-cat-card-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[520px] overflow-y-auto pr-1">
+                <!-- Populated via JS -->
+              </div>
+
+              <!-- Bottom Sticky Save Bar -->
+              <div class="flex items-center justify-between pt-5 border-t border-gray-100 gap-3">
+                <button type="button" onclick="deleteActiveBuyerFromFullPage()"
+                  class="text-xs text-rose-600 hover:text-rose-800 font-medium hover:underline flex items-center gap-1.5 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <span>ลบ Buyer นี้ออกจากระบบ</span>
+                </button>
+
+                <div class="flex items-center gap-3">
+                  <button type="button" onclick="resetActiveBuyerPermsToSaved()"
+                    class="border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 font-medium transition-colors">
+                    คืนค่าเดิม
+                  </button>
+                  <button type="button" onclick="saveActiveBuyerPermsFullPage()"
+                    class="bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl px-6 py-2.5 text-xs sm:text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>บันทึกสิทธิ์ Category</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 3: ทะเบียนคู่ค้า SUPPLIER (หน้าเต็ม Full View - ไม่ใช่ป๊อปอัป) -->
+      <section id="view-suppliers" class="hidden space-y-6 animate-fadein">
+        <!-- Top Bar with Back Button & Breadcrumbs -->
+        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-xs text-gray-500 mb-1.5">
+              <a href="javascript:void(0)" onclick="showAdminView('dashboard')" class="hover:text-emerald-700 flex items-center gap-1 font-medium transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span>หน้าหลัก</span>
+              </a>
+              <span>/</span>
+              <span class="text-emerald-800 font-semibold">รายชื่อ Supplier (Supplier Directory)</span>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">ทะเบียนและข้อมูลคู่ค้า Supplier</h1>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                Supplier Directory Full View
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1 leading-relaxed">
+              ดูรายชื่อนิติบุคคลคู่ค้า เลขประจำตัวผู้เสียภาษี ข้อมูลติดต่อ และประวัติรายการเครื่องจักรที่ส่งเข้ามาในระบบ
+            </p>
+          </div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button type="button" onclick="showAdminView('dashboard')"
+              class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2.5 rounded-2xl font-medium text-xs sm:text-sm flex items-center gap-2 shadow-2xs transition-colors">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+              <span>กลับหน้าหลัก</span>
+            </button>
+            <button type="button" onclick="openAddSupplierModal()"
+              class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 rounded-2xl font-semibold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm transition-all">
+              <span>+ เพิ่มคู่ค้าใหม่</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Stats Cards for Suppliers -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="full-supplier-stats"></div>
+
+        <!-- Filter Bar and Supplier Data Table -->
+        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-3 flex-1">
+              <div class="relative flex-1 min-w-[240px]">
+                <input id="fullSupSearch" type="text" oninput="drawSupplierListFullPage()"
+                  placeholder="ค้นหาชื่อบริษัท, รหัส SUP, เลขประจำตัวผู้เสียภาษี, อีเมล..."
+                  class="inp text-xs !py-2.5 !pl-9">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              </div>
+              <select id="fullSupStatusFilter" onchange="drawSupplierListFullPage()" class="inp text-xs !py-2.5 !w-auto">
+                <option value="">สถานะ: ทั้งหมด</option>
+                <option value="อนุมัติแล้ว">อนุมัติแล้ว</option>
+                <option value="รอตรวจสอบ">รอตรวจสอบ</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Full Table -->
+          <div class="overflow-x-auto border border-gray-100 rounded-2xl">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="bg-gray-50 text-gray-700 font-semibold border-b border-gray-100">
+                <tr>
+                  <th class="p-3.5">รหัสคู่ค้า</th>
+                  <th class="p-3.5">ชื่อบริษัท / นิติบุคคล</th>
+                  <th class="p-3.5">เลขผู้เสียภาษี (Tax ID)</th>
+                  <th class="p-3.5">ผู้ติดต่อ & เบอร์โทร</th>
+                  <th class="p-3.5">อีเมล</th>
+                  <th class="p-3.5 text-center">รายการที่ส่ง</th>
+                  <th class="p-3.5">สถานะ</th>
+                  <th class="p-3.5 text-right">การจัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="full-supplier-rows" class="divide-y divide-gray-100"></tbody>
+            </table>
+            <div id="full-supplier-empty" class="hidden p-12 text-center text-gray-400 text-sm">
+              ไม่พบคู่ค้าตามเงื่อนไขที่ค้นหา
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- RETURN TO BUYER MODAL (Admin Return Feature) -->
+  <div id="returnModal"
+    class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto"
+    onclick="if(event.target==this)closeReturnModal()">
+    <div class="bg-white rounded-3xl w-full max-w-lg my-6 p-6 sm:p-7 shadow-2xl border border-rose-100 animate-fadein">
+      <div class="flex justify-between items-start mb-4 border-b pb-3">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl font-bold shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-gray-900">ส่งคืนเอกสารให้ Buyer แก้ไข</h3>
+            <p class="text-xs text-gray-500 mt-0.5">ส่งเอกสารกลับไปให้ Buyer ตรวจสอบความถูกต้องและแก้ไขข้อมูล</p>
+          </div>
+        </div>
+        <button onclick="closeReturnModal()"
+          class="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+      </div>
+
+      <form id="formReturn" onsubmit="confirmReturnToBuyer(event)" class="space-y-4 text-xs sm:text-sm">
+        <!-- Target Document Selection / Info -->
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">เลือกรายการเอกสารที่ต้องการส่งคืน <span
+              class="text-rose-500">*</span></label>
+          <select id="returnDocSelect" required onchange="onReturnDocSelectChange()" class="inp text-xs">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <!-- Document Preview Info Box -->
+        <div id="returnDocInfoBox" class="bg-gray-50 p-3 rounded-2xl border border-gray-100 text-xs space-y-1">
+          <div><span class="text-gray-500">หมวดหมู่:</span> <strong id="ret-info-cat" class="text-gray-800"></strong>
+          </div>
+          <div><span class="text-gray-500">ผู้ส่งต้นทาง:</span> <span id="ret-info-sup" class="text-gray-800"></span>
+          </div>
+        </div>
+
+        <!-- Select Target Buyer -->
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">ระบุ Buyer ผู้รับผิดชอบแก้ไข <span
+              class="text-rose-500">*</span></label>
+          <select id="returnBuyerSelect" required class="inp text-xs">
+            <!-- Populated with buyers -->
+          </select>
+        </div>
+
+        <!-- Return Remarks Textarea -->
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">
+            ระบุเหตุผล / สิ่งที่ต้องการให้แก้ไข (Remarks) <span class="text-rose-500">*</span>
+          </label>
+          <textarea id="returnReasonText" rows="3" required
+            placeholder="เช่น ขอให้ตรวจสอบใบรับประกันสินค้า (Warranty Document) เพิ่มเติม และแนบสเปกเครื่องจักรให้ครบถ้วน"
+            class="inp text-xs"></textarea>
+        </div>
+
+        <!-- Quick Remark Chips -->
+        <div>
+          <div class="text-[11px] text-gray-500 mb-1.5 font-medium">ข้อความสำเร็จรูปแนะนำ (คลิกเพื่อใส่ข้อความ):</div>
+          <div class="flex flex-wrap gap-1.5 text-[11px]">
+            <button type="button" onclick="addReturnRemark('ขอรูปถ่ายเนมเพลท / Serial ให้ชัดเจน')"
+              class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-rose-50 hover:text-rose-700 border text-gray-700 transition-colors">รูปเนมเพลทไม่ชัดเจน</button>
+            <button type="button" onclick="addReturnRemark('สัญญาและเอกสารแนบ Warranty ไม่ครบถ้วน')"
+              class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-rose-50 hover:text-rose-700 border text-gray-700 transition-colors">เอกสาร Warranty ไม่ครบ</button>
+            <button type="button" onclick="addReturnRemark('ราคาซื้อไม่ตรงกับสัญญาและใบสั่งซื้อ PO ล่าสุด')"
+              class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-rose-50 hover:text-rose-700 border text-gray-700 transition-colors">ราคาไม่ตรง PO</button>
+            <button type="button" onclick="addReturnRemark('กรุณาระบุ Sub Category และสเปกพิกัดทางไฟฟ้าให้ชัดเจน')"
+              class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-rose-50 hover:text-rose-700 border text-gray-700 transition-colors">ระบุสเปกและ Sub Category</button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t">
+          <button type="button" onclick="closeReturnModal()"
+            class="border rounded-xl px-4 py-2 text-xs text-gray-600 hover:bg-gray-50">ยกเลิก</button>
+          <button type="submit"
+            class="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-5 py-2 text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors">
+            <span>ยืนยันส่งคืนเอกสาร</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div id="modal"
+    class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-start justify-center p-4 overflow-y-auto"
+    onclick="if(event.target==this)this.classList.add('hidden')">
+    <div class="bg-white rounded-3xl w-full max-w-2xl my-8 p-6 sm:p-7 shadow-2xl border border-gray-100 animate-fadein">
+      <div class="flex justify-between items-start mb-4 border-b pb-3">
+        <div>
+          <h3 id="m-t" class="text-lg font-bold text-gray-900"></h3>
+          <p id="m-s" class="text-xs text-gray-500 mt-0.5"></p>
+        </div>
+        <button onclick="E('modal').classList.add('hidden')"
+          class="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+      </div>
+
+      <!-- Returned Alert Card inside Detail Modal if document was returned -->
+      <div id="modal-return-notice" class="hidden mb-4 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs">
+        <div class="font-bold text-rose-900 flex items-center gap-2">
+          <span>เอกสารนี้ถูก Admin ส่งคืนให้ Buyer ตรวจสอบ / แก้ไข</span>
+        </div>
+        <div class="mt-2 p-3 bg-white rounded-xl border border-rose-100 text-rose-900 font-medium text-xs">
+          <span class="text-rose-500 font-semibold block text-[10px] mb-0.5">หมายเหตุจาก Admin:</span>
+          <span id="modal-return-reason-text"></span>
+        </div>
+        <div id="modal-return-meta-text" class="text-[11px] text-rose-700 mt-2"></div>
+      </div>
+
+      <div id="m-b"></div>
+    </div>
+  </div>
+
+
+
+  <!-- SUPPLIER DETAIL MODAL -->
+  <div id="supplierDetailModal"
+    class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+    onclick="if(event.target==this)closeSupplierDetailModal()">
+    <div class="bg-white rounded-3xl w-full max-w-3xl my-6 p-6 sm:p-8 shadow-2xl border border-gray-100">
+      <div class="flex justify-between items-start mb-4 border-b pb-4">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xl shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+              </path>
+            </svg>
+          </div>
+          <div>
+            <h3 id="sd-company" class="text-lg font-bold text-gray-900"></h3>
+            <div class="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
+              <span id="sd-code"
+                class="font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"></span>
+              <span id="sd-status" class="px-2 py-0.5 rounded-full font-semibold"></span>
+            </div>
+          </div>
+        </div>
+        <button onclick="closeSupplierDetailModal()"
+          class="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+      </div>
+
+      <div class="bg-gray-50 rounded-2xl p-4 mb-4 border border-gray-100 text-xs sm:text-sm">
+        <div class="font-bold text-gray-800 mb-2">ข้อมูลนิติบุคคลและผู้ติดต่อ</div>
+        <div class="grid sm:grid-cols-2 gap-x-4 gap-y-2 text-xs">
+          <div><span class="text-gray-500">เลขประจำตัวผู้เสียภาษี (Tax ID):</span> <strong id="sd-tax"
+              class="text-gray-900 font-semibold ml-1"></strong></div>
+          <div><span class="text-gray-500">ผู้ติดต่อหลัก:</span> <strong id="sd-contact"
+              class="text-gray-900 font-semibold ml-1"></strong></div>
+          <div><span class="text-gray-500">เบอร์โทรศัพท์:</span> <strong id="sd-phone"
+              class="text-gray-900 font-semibold ml-1"></strong></div>
+          <div><span class="text-gray-500">อีเมลติดต่อ/เข้าสู่ระบบ:</span> <strong id="sd-email"
+              class="text-gray-900 font-semibold ml-1"></strong></div>
+          <div class="sm:col-span-2"><span class="text-gray-500">ที่อยู่สำนักงานใหญ่:</span> <span id="sd-address"
+              class="text-gray-800 ml-1"></span></div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold text-sm text-gray-900 flex items-center gap-2">
+            <span>เครื่องจักรและอุปกรณ์ที่ส่งมอบ (<span id="sd-item-count">0</span> รายการ)</span>
+          </div>
+          <div class="text-xs text-emerald-800 font-semibold">
+            มูลค่าสั่งซื้อรวม: <span id="sd-total-value" class="text-sm font-bold text-emerald-900">0</span> THB
+          </div>
+        </div>
+        <div class="max-h-[200px] overflow-y-auto border border-gray-100 rounded-xl">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-gray-100 text-gray-600">
+              <tr>
+                <th class="p-2.5">วันที่</th>
+                <th class="p-2.5">รายการเครื่องจักร</th>
+                <th class="p-2.5">หมวดหมู่</th>
+                <th class="p-2.5">ราคาซื้อ (THB)</th>
+                <th class="p-2.5">สถานะ</th>
+              </tr>
+            </thead>
+            <tbody id="sd-items-table" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t">
+        <button type="button" onclick="filterMainListBySupplier()"
+          class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold px-4 py-2 rounded-xl transition-colors">
+          กรองดูรายการของ Supplier เจ้านี้ในหน้ารายการหลัก
+        </button>
+        <button type="button" onclick="closeSupplierDetailModal()"
+          class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold px-5 py-2 rounded-xl transition-colors">
+          ปิดหน้าต่าง
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD SUPPLIER MODAL -->
+  <div id="addSupplierModal"
+    class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+    onclick="if(event.target==this)closeAddSupplierModal()">
+    <div class="bg-white rounded-3xl w-full max-w-lg my-6 p-6 sm:p-8 shadow-2xl border border-gray-100">
+      <div class="flex justify-between items-start mb-4 border-b pb-3">
+        <div>
+          <h3 class="text-lg font-bold text-gray-900">เพิ่มข้อมูลคู่ค้า Supplier ใหม่</h3>
+          <p class="text-xs text-gray-500 mt-0.5">ลงทะเบียนนิติบุคคลคู่ค้าเข้าสู่ระบบ</p>
+        </div>
+        <button onclick="closeAddSupplierModal()"
+          class="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+      </div>
+      <form id="formAddSup" onsubmit="saveNewSupplier(event)" class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block font-medium mb-1">ชื่อบริษัท / นิติบุคคล <span class="text-red-500">*</span></label>
+          <input id="add-company" type="text" required class="inp text-xs"
+            placeholder="เช่น บริษัท ตัวอย่างซัพพลาย จำกัด">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium mb-1">เลขประจำตัวผู้เสียภาษี (13 หลัก) <span
+                class="text-red-500">*</span></label>
+            <input id="add-tax" type="text" maxlength="13" required class="inp text-xs" placeholder="01055xxxxxxxx">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">รหัสคู่ค้า (เว้นว่างเพื่อ Auto)</label>
+            <input id="add-code" type="text" class="inp text-xs" placeholder="เช่น SUP-00099">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium mb-1">ชื่อผู้ติดต่อ <span class="text-red-500">*</span></label>
+            <input id="add-contact" type="text" required class="inp text-xs" placeholder="ชื่อ-นามสกุล">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
+            <input id="add-phone" type="tel" required class="inp text-xs" placeholder="0xx-xxx-xxxx">
+          </div>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">อีเมลติดต่อ / ล็อกอิน <span class="text-red-500">*</span></label>
+          <input id="add-email" type="email" required class="inp text-xs" placeholder="contact@company.co.th">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">ที่อยู่สำนักงาน</label>
+          <textarea id="add-address" rows="2" class="inp text-xs" placeholder="ที่อยู่สำนักงานใหญ่/สาขา"></textarea>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="closeAddSupplierModal()"
+            class="border rounded-xl px-4 py-2 text-xs text-gray-600 hover:bg-gray-50">ยกเลิก</button>
+          <button type="submit"
+            class="bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl px-5 py-2 text-xs font-semibold shadow-xs">บันทึกคู่ค้า</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast"
+    class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-5 py-2.5 rounded-full shadow-2xl z-50 transition-all font-medium border border-gray-700">
+  </div>
+
+  <script src="js/data.js?v=20261002_3"></script>
+  <script src="js/common.js?v=20261002_3"></script>
+  <script src="js/admin.js?v=20261002_3"></script>
+</body>
+
+</html>

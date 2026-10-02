@@ -1,0 +1,108 @@
+Created At: 2026-10-02T09:17:58+07:00
+Completed At: 2026-10-02T09:17:58+07:00
+File Path: `file:///c:/Users/hp/Downloads/supplier-portal%20%281%29/js/submissions.js`
+Total Lines: 124
+Total Bytes: 5611
+Showing lines 1 to 100
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: const SESSION = Auth.require(['buyer', 'admin']);
+2: let role = SESSION && SESSION.role, subs = [];
+3: 
+4: function drawList() {
+5:   const m = new Map();
+6:   subs.forEach(r => m.set(r.id, r));
+7:   const all = [...m.values()].sort((x, y) => y.at - x.at);
+8:   const src = E('fSrc').value;
+9:   const cat = E('fCat').value;
+10:   const q = (E('fQ').value || '').toLowerCase().trim();
+11: 
+12:   const a = all.filter(r => {
+13:     const matchSrc = !src || r.role === src;
+14:     const matchCat = !cat || r.values.category === cat;
+15:     const matchQ = !q || JSON.stringify(r.values).toLowerCase().includes(q) || (r.email || '').toLowerCase().includes(q) || (r.title || '').toLowerCase().includes(q);
+16:     return matchSrc && matchCat && matchQ;
+17:   });
+18: 
+19:   const wait = all.filter(r => r.status === 'รอ Buyer ตรวจ').length;
+20:   const rev = all.filter(r => r.status === 'ตรวจ/แก้ไขแล้ว').length;
+21:   const supCount = all.filter(r => r.role === 'supplier').length;
+22: 
+23:   E('stats').innerHTML = [
+24:     ['ทั้งหมด', all.length],
+25:     ['รอ Buyer ตรวจ', wait],
+26:     ['ตรวจ/แก้ไขแล้ว', rev],
+27:     ['จาก Supplier', supCount]
+28:   ].map(([l, n]) => `
+29:     <div class="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
+30:       <div class="text-xs text-gray-500 font-medium">${l}</div>
+31:       <div class="text-3xl font-bold text-green-700 mt-1">${n}</div>
+32:     </div>
+33:   `).join('');
+34: 
+35:   const cnt = {};
+36:   all.forEach(r => {
+37:     const c = r.values.category || 'ไม่ระบุ';
+38:     cnt[c] = (cnt[c] || 0) + 1;
+39:   });
+40:   const mx = Math.max(1, ...Object.values(cnt));
+41: 
+42:   E('bars').innerHTML = Object.keys(cnt).length ?
+43:     Object.entries(cnt).sort((x, y) => y[1] - x[1]).map(([c, n]) => `
+44:       <div class="flex items-center gap-3 text-sm">
+45:         <div class="w-48 shrink-0 truncate text-gray-700 font-medium">${esc(c)}</div>
+46:         <div class="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+47:           <div class="h-full bg-green-600 rounded-full transition-all" style="width:${(n / mx) * 100}%"></div>
+48:         </div>
+49:         <div class="w-8 text-right font-semibold text-gray-900">${n}</div>
+50:       </div>
+51:     `).join('') : '<p class="text-sm text-gray-500">ยังไม่มีข้อมูล</p>';
+52: 
+53:   E('empty').classList.toggle('hidden', a.length > 0);
+54: 
+55:   const bd = st => st === 'รอ Buyer ตรวจ' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800';
+56: 
+57:   E('rows').innerHTML = a.map((r, i) => `
+58:     <tr class="border-t hover:bg-gray-50 transition-colors">
+59:       <td class="p-3 whitespace-nowrap text-gray-500 text-xs">${fdt(r.at)}</td>
+60:       <td class="p-3 font-semibold text-gray-900">${esc(r.title)}</td>
+61:       <td class="p-3 text-gray-700">${esc(r.values.category || '-')}</td>
+62:       <td class="p-3 text-gray-600">${esc(r.values.subCat || '-')}</td>
+63:       <td class="p-3 text-gray-600">
+64:         <div>${esc(r.email)}</div>
+65:       </td>
+66:       <td class="p-3 whitespace-nowrap">
+67:         <span class="px-2.5 py-1 rounded-full text-xs font-medium ${bd(r.status)}">${esc(r.status || 'ส่งแล้ว')}</span>
+68:       </td>
+69:       <td class="p-3 text-right whitespace-nowrap">
+70:         <button onclick="view(${i})" class="text-gray-700 hover:text-green-700 hover:underline mr-3 font-medium">ดู</button>
+71:         <button onclick="editSub(${i})" class="text-green-700 hover:text-green-900 font-semibold hover:underline">แก้ไข</button>
+72:       </td>
+73:     </tr>
+74:   `).join('');
+75: 
+76:   window._a = a;
+77: }
+78: 
+79: function view(i) {
+80:   const r = window._a[i];
+81:   E('m-t').textContent = r.title;
+82:   E('m-s').innerHTML = esc(fdt(r.at) + ' / ' + r.email) + (r.updatedBy ? '<br><span class="text-green-700">✓ แก้ไขล่าสุด ' + esc(fdt(r.updatedAt) + ' โดย ' + r.updatedBy) + '</span>' : '');
+83:   
+84:   E('m-b').innerHTML = `
+85:     <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm max-h-[60vh] overflow-y-auto p-1">
+86:       ${Object.entries(r.values).filter(([k, v]) => v != null && v !== '').map(([k, v]) => `
+87:         <div class="border-b border-gray-100 pb-2">
+88:           <dt class="text-gray-500 text-xs font-medium">${esc(r.labels?.[k] || LABELS_MAP[k] || k)}</dt>
+89:           <dd class="font-semibold text-gray-900 break-words mt-0.5">${esc(v)}</dd>
+90:         </div>
+91:       `).join('')}
+92:     </dl>
+93:     <div class="flex justify-end gap-2 mt-5 pt-3 border-t">
+94:       <button onclick="E('modal').classList.add('hidden')" class="border rounded-xl px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">ปิด</button>
+95:       <button onclick="editSub(${i})" class="bg-green-700 hover:bg-green-800 text-white rounded-xl px-5 py-2 text-sm font-semibold shadow-sm">แก้ไขรายการนี้</button>
+96:     </div>
+97:   `;
+98:   E('modal').classList.remove('hidden');
+99: }
+100: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

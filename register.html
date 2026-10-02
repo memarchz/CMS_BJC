@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="color-scheme" content="light">
+<title>ลงทะเบียน Supplier | SUPPLIER PORTAL</title>
+<script>const _twWarn=console.warn;console.warn=(...a)=>{if(typeof a[0]==='string'&&a[0].includes('cdn.tailwindcss.com'))return;_twWarn(...a);};</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head>
+<body>
+<main class="min-h-screen flex items-center justify-center p-5">
+<form id="f" class="w-full max-w-xl bg-white rounded-2xl shadow-sm p-7">
+<a href="login.html?role=supplier" class="text-sm text-gray-500 hover:text-gray-800">← กลับไปหน้าเข้าสู่ระบบ</a>
+<div class="brand text-xl mt-4">SUPPLIER PORTAL</div>
+<h1 class="text-xl font-bold mt-1">ลงทะเบียน Supplier</h1><p class="text-sm text-gray-500 mb-5">สำหรับ Supplier ใหม่เท่านั้น หลังลงทะเบียนจะเข้าสู่ระบบให้อัตโนมัติ</p>
+<div class="grid sm:grid-cols-2 gap-4">
+<div class="sm:col-span-2"><div><label class="text-sm font-medium">ชื่อบริษัท / นิติบุคคล <span class="text-red-500">*</span></label><input id="company" type="text" required class="inp mt-1" placeholder="ชื่อเต็มตามทะเบียน" ></div></div>
+<div><label class="text-sm font-medium">เลขประจำตัวผู้เสียภาษี <span class="text-red-500">*</span></label><input id="taxId" type="text" required class="inp mt-1" placeholder="13 หลัก" inputmode="numeric" maxlength="13"></div>
+<div><label class="text-sm font-medium">ชื่อผู้ติดต่อ <span class="text-red-500">*</span></label><input id="contact" type="text" required class="inp mt-1" placeholder="ชื่อ-นามสกุล" ></div>
+<div><label class="text-sm font-medium">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label><input id="phone" type="tel" required class="inp mt-1" placeholder="0xx-xxx-xxxx" ></div>
+<div><label class="text-sm font-medium">อีเมล (ใช้เข้าสู่ระบบ) <span class="text-red-500">*</span></label><input id="email" type="email" required class="inp mt-1" placeholder="name@company.com" ></div>
+<div><label class="text-sm font-medium">รหัสผ่าน <span class="text-red-500">*</span></label><input id="pw" type="password" required class="inp mt-1" placeholder="อย่างน้อย 8 ตัวอักษร" ></div>
+<div><label class="text-sm font-medium">ยืนยันรหัสผ่าน <span class="text-red-500">*</span></label><input id="pw2" type="password" required class="inp mt-1" placeholder="พิมพ์รหัสผ่านอีกครั้ง" ></div></div>
+<p id="err" class="hidden text-sm text-red-600 mt-4"></p>
+<button class="w-full mt-5 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl py-3">ลงทะเบียน</button>
+</form></main>
+<script src="js/common.js"></script><script src="js/register.js"></script></body></html>

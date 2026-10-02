@@ -1,0 +1,14 @@
+{
+  "name": "supplier-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Supplier Portal",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "serve": "serve -s -l 3000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.6"
+  }
+}
