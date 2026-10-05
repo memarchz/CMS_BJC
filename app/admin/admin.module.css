@@ -1,0 +1,15 @@
+/* Page-local rules ported from the <style> block of admin.html (lines 19-32). */
+.sidebarLink {
+  transition: all 0.15s ease-in-out;
+}
+
+.sidebarLink.active {
+  background-color: #e6f7f0;
+  color: #059669;
+  font-weight: 600;
+}
+
+.sidebarLink:not(.active):hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}

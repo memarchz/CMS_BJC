@@ -1,0 +1,87 @@
+import { J } from "./safeStorage";
+import { Auth } from "./auth";
+
+export const DEFAULT_BUYER_PERMS: Record<string, string[]> = {
+  "buyer@demo.co.th": ["Chiller", "Refrigeration system", "Air condition / AHU", "Cooling tower"],
+  "buyer1@demo.co.th": ["Refrigeration system", "Chiller", "Electrical system"],
+  "buyer2@demo.co.th": ["Safety Equipment", "Logistic Equipment"],
+  "buyer3@demo.co.th": ["Chiller", "Super Equipment"],
+  "buyer4@demo.co.th": ["Refrigeration system", "Electrical system", "Logistic Equipment"],
+};
+
+const KEY = "buyer_category_permissions";
+
+export const Permissions = {
+  key: KEY,
+  getAll(): Record<string, string[]> {
+    let custom = J.get<Record<string, string[]> | null>(KEY, null);
+    if (!custom || typeof custom !== "object" || Array.isArray(custom)) {
+      custom = { ...DEFAULT_BUYER_PERMS };
+      J.set(KEY, custom);
+    }
+    return custom;
+  },
+  get(email: string): string[] {
+    if (!email) return [];
+    const all = Permissions.getAll();
+    const mail = String(email).trim().toLowerCase();
+    const foundKey = Object.keys(all).find((k) => k.toLowerCase() === mail);
+    if (foundKey && Array.isArray(all[foundKey])) return all[foundKey];
+    const defKey = Object.keys(DEFAULT_BUYER_PERMS).find((k) => k.toLowerCase() === mail);
+    if (defKey) return DEFAULT_BUYER_PERMS[defKey];
+    return [];
+  },
+  set(email: string, categories: string[]): string[] {
+    if (!email) return [];
+    const all = Permissions.getAll();
+    const mail = String(email).trim().toLowerCase();
+    all[mail] = Array.isArray(categories) ? categories : [];
+    J.set(KEY, all);
+    return all[mail];
+  },
+  delete(email: string): void {
+    if (!email) return;
+    const all = Permissions.getAll();
+    delete all[String(email).trim().toLowerCase()];
+    J.set(KEY, all);
+  },
+  canView(email: string, category: string | undefined, role: string): boolean {
+    if (role === "admin" || role === "supplier") return true;
+    if (!category) return false;
+    const allowed = Permissions.get(email);
+    if (!Array.isArray(allowed) || allowed.length === 0) return false;
+    const catClean = String(category).trim().toLowerCase();
+    return allowed.some((a) => String(a).trim().toLowerCase() === catClean);
+  },
+  getBuyers() {
+    const users = Auth.users().filter((u) => u.role === "buyer");
+    const allPerms = Permissions.getAll();
+    const map = new Map<
+      string,
+      { email: string; name: string; status: string; updatedAtStr: string; categories: string[] }
+    >();
+    users.forEach((u) => {
+      const lower = u.email.toLowerCase();
+      map.set(lower, {
+        email: u.email,
+        name: u.company || u.email,
+        status: u.status || "ใช้งานอยู่",
+        updatedAtStr: u.updatedAtStr || "12 มิ.ย. 2568 14:32",
+        categories: Permissions.get(u.email),
+      });
+    });
+    Object.keys(allPerms).forEach((k) => {
+      const lower = k.toLowerCase();
+      if (!map.has(lower)) {
+        map.set(lower, {
+          email: k,
+          name: "Buyer (" + k.split("@")[0] + ")",
+          status: "ใช้งานอยู่",
+          updatedAtStr: "12 มิ.ย. 2568 14:32",
+          categories: Permissions.get(k),
+        });
+      }
+    });
+    return Array.from(map.values());
+  },
+};

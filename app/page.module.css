@@ -1,0 +1,22 @@
+.bg {
+  background: radial-gradient(circle at 50% 25%, #ffffff 0%, #f6fbf7 55%, #eaf5ec 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.sparks {
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(0.95);
+  }
+}
