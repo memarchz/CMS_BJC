@@ -36,4 +36,10 @@ describe("SupplierDetailModal", () => {
     fireEvent.click(screen.getByText(/กรองดูรายการของ Supplier เจ้านี้/));
     expect(onFilterInMainList).toHaveBeenCalled();
   });
+
+  it("renders the category breakdown chips when the supplier has items", () => {
+    const sup = Suppliers.all()[0];
+    render(<SupplierDetailModal open={true} onClose={jest.fn()} supplier={sup} onFilterInMainList={jest.fn()} />);
+    expect(screen.getByText(/สรุปตามแต่ละบล็อก \/ หมวดหมู่ที่กรอกเข้ามา/)).toBeInTheDocument();
+  });
 });

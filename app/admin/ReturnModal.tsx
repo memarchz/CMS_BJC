@@ -220,7 +220,7 @@ export function ReturnModal({ open, onClose, subId, onDone }: Props) {
       open={open}
       onClose={onClose}
       backdropClassName="bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto"
-      panelClassName="bg-white rounded-3xl w-full max-w-lg my-6 p-6 sm:p-7 shadow-2xl border border-rose-100 animate-fadein"
+      panelClassName="bg-white rounded-2xl w-full max-w-lg my-6 p-6 sm:p-7 shadow-2xl border border-rose-100 animate-fadein"
     >
       <ReturnForm subId={subId} onClose={onClose} onDone={onDone} />
     </AdminModal>

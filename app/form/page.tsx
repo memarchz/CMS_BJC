@@ -369,13 +369,15 @@ function FormPage() {
             >
               กรอกอัตโนมัติ
             </button>
-            <Link
-              id="backList"
-              href={role === "admin" ? "/admin" : "/submissions"}
-              className={`${role === "supplier" ? "hidden " : ""}text-sm border rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors`}
-            >
-              รายการที่ส่งมา
-            </Link>
+            {role !== "supplier" ? (
+              <Link
+                id="backList"
+                href={role === "admin" ? "/admin" : "/submissions"}
+                className="text-sm border rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors"
+              >
+                รายการที่ส่งมา
+              </Link>
+            ) : null}
             <button
               onClick={() => {
                 Auth.logout();
@@ -472,7 +474,7 @@ function FormPage() {
               />
               <div>
                 <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
-                  <span> แนบรูปถ่ายเนมเพลทแล้ว</span>
+                  <span>แนบรูปภาพสำหรับกรอกข้อมูลอัตโนมัติแล้ว</span>
                   <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[10px] font-semibold">AI Extracted</span>
                 </div>
                 <div id="formNameplateInfo" className="text-xs text-gray-600 mt-0.5">

@@ -59,4 +59,39 @@ describe("SupplierDirectoryView", () => {
     ).length;
     expect(row).toHaveTextContent(`${expected} เครื่อง`);
   });
+
+  it("tapping on the item count button expands category breakdown and machine list, and clicking again collapses it", () => {
+    const onViewSub = jest.fn();
+    renderView({ onViewSub });
+    const countBtn = screen.getByRole("button", { name: /4 เครื่อง/i });
+
+    // Tap to expand
+    fireEvent.click(countBtn);
+    expect(screen.getByText(/จำนวนที่กรอกแยกตามแต่ละบล็อก \/ หมวดหมู่/)).toBeInTheDocument();
+    expect(screen.getByText(/ตารางเครื่องจักรที่ส่งเข้ามาทั้งหมด/)).toBeInTheDocument();
+
+    // Check that clicking 'ดูฟอร์ม' calls onViewSub
+    const viewFormBtns = screen.getAllByRole("button", { name: /ดูฟอร์ม/i });
+    expect(viewFormBtns.length).toBeGreaterThan(0);
+    fireEvent.click(viewFormBtns[0]);
+    expect(onViewSub).toHaveBeenCalled();
+
+    // Tap again to collapse
+    fireEvent.click(countBtn);
+    expect(screen.queryByText(/จำนวนที่กรอกแยกตามแต่ละบล็อก \/ หมวดหมู่/)).toBeNull();
+  });
+
+  it("clicking the supplier company name directly expands and collapses the dropdown", () => {
+    renderView();
+    const supName = screen.getByText("บริษัท ตัวอย่างซัพพลาย จำกัด");
+
+    // Click company name to expand
+    fireEvent.click(supName);
+    expect(screen.getByText(/จำนวนที่กรอกแยกตามแต่ละบล็อก \/ หมวดหมู่/)).toBeInTheDocument();
+    expect(screen.getByText(/ตารางเครื่องจักรที่ส่งเข้ามาทั้งหมด/)).toBeInTheDocument();
+
+    // Click company name again to collapse
+    fireEvent.click(supName);
+    expect(screen.queryByText(/จำนวนที่กรอกแยกตามแต่ละบล็อก \/ หมวดหมู่/)).toBeNull();
+  });
 });

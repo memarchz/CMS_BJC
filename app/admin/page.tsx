@@ -86,20 +86,24 @@ export default function Page() {
   const navIcon = (active: boolean) => `w-5 h-5 ${active ? "text-emerald-600" : "text-gray-500"} shrink-0`;
 
   return (
-    <div className="bg-[#f8fafc] text-gray-900 min-h-screen flex flex-col">
+    <div className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
       {/* TOP NAVIGATION BAR */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-xs">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-          {/* Left: Logo & Role Pill */}
-          <div className="flex items-center gap-3">
+      <header
+        className="bg-white border-b border-gray-200 sticky top-0 z-30"
+        style={{ top: "env(safe-area-inset-top,0px)" }}
+      >
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3 flex-wrap">
+          {/* Left: Hamburger, Logo & Role Pill */}
+          <div className="flex items-center gap-3 flex-wrap">
             <button
               type="button"
               onClick={() => setSidebarOpen((v) => !v)}
-              className="lg:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+              aria-label="เมนู"
             >
               <SvgIcon className="w-5 h-5" paths={[ICON.menu]} />
             </button>
-            <Link href="/" className="flex items-center gap-2.5 group">
+            <Link href="/" className="flex items-center gap-2.5 group mr-2">
               <Image
                 src="/img/logo.png"
                 alt="Supplier Portal"
@@ -107,32 +111,38 @@ export default function Page() {
                 height={32}
                 className="w-8 h-8 object-contain drop-shadow-sm"
               />
-              <span className="font-bold text-xl text-gray-900 tracking-tight group-hover:text-emerald-700 transition-colors">
+              <span className="font-bold text-xl text-gray-900 tracking-tight group-hover:text-[#0b6330] transition-colors">
                 Supplier Portal
               </span>
             </Link>
-            <div className="flex items-center gap-2 ml-2">
-              <span
-                id="lb"
-                className="text-xs px-3 py-0.5 rounded-full bg-gray-100 text-gray-700 font-semibold border border-gray-200"
-              >
-                Admin
-              </span>
-              <span id="role-sublabel" className="text-xs text-gray-400 font-normal hidden sm:inline">
-                ผู้ดูแลระบบ
-              </span>
-            </div>
+            <span
+              id="lb"
+              className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200"
+            >
+              Admin
+            </span>
+            <span id="who" className="text-sm text-gray-600 font-medium hidden sm:inline">
+              {session.name || "ผู้ดูแลระบบ (Admin ตัวอย่าง)"}
+            </span>
           </div>
 
-          {/* Right: Notification, Profile, Actions */}
-          <div className="flex items-center gap-3">
-            {/* Notification Bell with Red Dot */}
+          {/* Right: Actions, Notification, Profile */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/form"
+              className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-semibold rounded-lg px-3.5 sm:px-4 py-2 transition-colors shadow-xs"
+            >
+              กรอกฟอร์มใหม่
+            </Link>
+
+            {/* Notification Bell */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setNotifOpen((v) => !v)}
                 id="btnNotif"
-                className="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                className="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                title="การแจ้งเตือน"
               >
                 <SvgIcon className="w-5 h-5" paths={[ICON.bell]} />
                 <span
@@ -165,63 +175,75 @@ export default function Page() {
               </div>
             </div>
 
-            {/* User Profile Avatar & Name */}
-            <div className="relative">
+            {/* User Dropdown / Logout button */}
+            <button
+              type="button"
+              onClick={() => setUserOpen((v) => !v)}
+              className="text-xs sm:text-sm border rounded-lg px-2.5 sm:px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-1.5 text-gray-700"
+            >
+              <span className="hidden sm:inline">ตั้งค่า</span>
+              <SvgIcon className="w-3.5 h-3.5 text-gray-400" paths={[ICON.chevronDown]} />
+            </button>
+
+            {/* User Dropdown Menu */}
+            <div
+              id="userDropdown"
+              className={`${
+                userOpen ? "" : "hidden "
+              }absolute right-4 sm:right-6 lg:right-8 top-14 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50 text-xs`}
+            >
+              <div className="p-2 border-b border-gray-100 mb-1">
+                <div className="font-bold text-gray-900" id="dd-name">
+                  {session.name || "Admin"}
+                </div>
+                <div className="text-gray-400 text-[11px]" id="dd-email">
+                  {session.email}
+                </div>
+              </div>
               <button
                 type="button"
-                onClick={() => setUserOpen((v) => !v)}
-                className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-100 transition-colors"
+                onClick={() => {
+                  setUserOpen(false);
+                  resetMockData();
+                }}
+                className="w-full text-left flex items-center gap-2 p-2 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
               >
-                <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"></path>
-                  </svg>
-                </div>
-                <span id="who" className="text-sm font-semibold text-gray-800 hidden md:inline">
-                  {session.name || "Admin"}
-                </span>
-                <SvgIcon className="w-4 h-4 text-gray-400" paths={[ICON.chevronDown]} />
+                <span>รีเซ็ตข้อมูล Mock Data</span>
               </button>
-
-              {/* User Dropdown Menu */}
-              <div
-                id="userDropdown"
-                className={`${
-                  userOpen ? "" : "hidden "
-                }absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50 text-xs`}
+              <div className="border-t border-gray-100 my-1"></div>
+              <button
+                type="button"
+                onClick={() => {
+                  Auth.logout();
+                  router.push("/");
+                }}
+                className="w-full text-left flex items-center gap-2 p-2 rounded-xl text-rose-600 hover:bg-rose-50 font-medium"
               >
-                <div className="p-2 border-b border-gray-100 mb-1">
-                  <div className="font-bold text-gray-900" id="dd-name">
-                    {session.name || "Admin"}
-                  </div>
-                  <div className="text-gray-400 text-[11px]" id="dd-email">
-                    {session.email}
-                  </div>
-                </div>
-                <Link href="/form" className="flex items-center gap-2 p-2 rounded-xl text-gray-700 hover:bg-gray-50 font-medium">
-                  <span>กรอกฟอร์มใหม่</span>
-                </Link>
-                <button
-                  type="button"
-                  onClick={resetMockData}
-                  className="w-full text-left flex items-center gap-2 p-2 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
-                >
-                  <span>รีเซ็ตข้อมูล Mock Data</span>
-                </button>
-                <div className="border-t border-gray-100 my-1"></div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    Auth.logout();
-                    router.push("/");
-                  }}
-                  className="w-full text-left flex items-center gap-2 p-2 rounded-xl text-rose-600 hover:bg-rose-50 font-medium"
-                >
-                  <span>ออกจากระบบ</span>
-                </button>
-              </div>
+                <span>ออกจากระบบ</span>
+              </button>
             </div>
+
+            <button
+              onClick={() => {
+                Auth.logout();
+                router.push("/");
+              }}
+              className="text-xs sm:text-sm border rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors text-gray-700"
+            >
+              ออกจากระบบ
+            </button>
           </div>
+        </div>
+
+        {/* Subheader bar like Buyer page */}
+        <div className="w-full px-4 sm:px-6 lg:px-8 pb-3 font-bold text-lg text-gray-800 flex items-center justify-between">
+          <span>
+            {view === "dashboard"
+              ? "ระบบจัดการสำหรับผู้ดูแลระบบ (Admin Dashboard)"
+              : view === "perms"
+              ? "กำหนดสิทธิ์ Category (Admin / User / Buyer)"
+              : "รายชื่อคู่ค้าและข้อมูล Supplier"}
+          </span>
         </div>
       </header>
 
@@ -230,9 +252,9 @@ export default function Page() {
         {/* LEFT SIDEBAR */}
         <aside
           id="sidebar"
-          className={`w-64 bg-white border-r border-gray-100 flex flex-col justify-between shrink-0 fixed inset-y-0 left-0 z-40 transform ${
+          className={`w-64 bg-white border-r border-gray-200 flex flex-col justify-between shrink-0 fixed inset-y-0 left-0 z-40 transform ${
             sidebarOpen ? "" : "-translate-x-full "
-          }lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out top-[57px]`}
+          }lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out top-[98px]`}
         >
           {/* Navigation Links */}
           <div className="p-4 space-y-1.5">
@@ -258,7 +280,7 @@ export default function Page() {
               className={navClass(view === "perms", true)}
             >
               <SvgIcon className={navIcon(view === "perms")} paths={[ICON.userAdd]} />
-              <span>จัดการสิทธิ์ Buyer</span>
+              <span>กำหนดสิทธิ์ Admin / User / Buyer</span>
             </a>
             <a
               href="#"
@@ -276,8 +298,8 @@ export default function Page() {
 
           {/* Bottom Mini Widget */}
           <div className="p-4 border-t border-gray-100">
-            <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3 text-xs">
-              <div className="w-8 h-8 rounded-xl bg-slate-800 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">
+            <div className="p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl flex items-center gap-3 text-xs">
+              <div className="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-sm shrink-0">
                 <SvgIcon className="w-4 h-4" paths={[ICON.shield]} />
               </div>
               <div>
@@ -313,6 +335,7 @@ export default function Page() {
               onBack={() => showAdminView("dashboard")}
               onOpenAddSupplier={() => setAddSupplierModalOpen(true)}
               onViewSupplierDetail={(sup) => setViewingSupplier(sup)}
+              onViewSub={(sub) => setViewingSub(sub)}
             />
           ) : null}
         </main>

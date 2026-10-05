@@ -13,6 +13,7 @@ import { CATS, CATN } from "./catalog";
 /** Raw result from the model, before validation. Every reading may be absent. */
 export type OcrReading = {
   isNameplate?: boolean | null;
+  docType?: string | null;
   brand?: string | null;
   series?: string | null;
   model?: string | null;
@@ -21,8 +22,13 @@ export type OcrReading = {
   mfgDate?: string | null;
   capacity?: string | null;
   power?: string | null;
-  standards?: string | null;
+  utility?: string | null;
   dimWeight?: string | null;
+  operatingCondition?: string | null;
+  standards?: string | null;
+  functional?: string | null;
+  usefulLife?: string | null;
+  designLife?: string | null;
   assetName?: string | null;
   category?: string | null;
   subCat?: string | null;
@@ -33,12 +39,14 @@ export type OcrReading = {
 export type OcrResult = {
   /** Form field keys → values, ready to hand to the form. */
   fields: Record<string, string>;
-  /** "high" | "medium" | "low" — how legible the plate was. */
+  /** "high" | "medium" | "low" — how legible the plate or spec sheet was. */
   confidence: string;
   /** Short Thai note from the model, e.g. why a reading is missing. */
   note: string;
-  /** False when the image does not show an equipment nameplate at all. */
+  /** False when the image does not show an equipment nameplate or spec sheet at all. */
   isNameplate: boolean;
+  /** "nameplate" | "spec_sheet" when detectable. */
+  docType?: string;
 };
 
 /**
@@ -56,24 +64,30 @@ const READING_TO_FIELDS: Record<string, string[]> = {
   mfgDate: ["mfgDate"],
   capacity: ["cap"],
   power: ["power"],
-  standards: ["std"],
+  utility: ["util"],
   dimWeight: ["dim"],
+  operatingCondition: ["opc"],
+  standards: ["std"],
+  functional: ["func"],
+  usefulLife: ["life"],
+  designLife: ["design"],
 };
 
-export const OCR_PROMPT = `คุณคือผู้ช่วยอ่านป้าย Nameplate ของเครื่องจักรและอุปกรณ์ สำหรับระบบทะเบียนทรัพย์สิน
+export const OCR_PROMPT = `คุณคือผู้ช่วยอ่านป้าย Nameplate และเอกสาร Product Specifications Sheet (Datasheet / Spec Sheet / แคตตาล็อกสเปก) ของเครื่องจักรและอุปกรณ์ สำหรับระบบทะเบียนทรัพย์สิน
 
 อ่านรูปที่ให้มา และตอบเป็น JSON ตาม schema ที่กำหนด โดยยึดกฎต่อไปนี้อย่างเคร่งครัด
 
-1. กรอกเฉพาะข้อมูลที่ "มองเห็นจริง" บนป้ายหรือบนตัวเครื่องในรูป
+1. กรอกเฉพาะข้อมูลที่ "มองเห็นจริง" บนป้าย Nameplate หรือในเอกสาร Product Specifications Sheet ในรูป
 2. ช่องใดที่อ่านไม่ได้ หรือไม่ปรากฏในรูป ให้ใส่ null ห้ามเดา ห้ามเติมจากความรู้ทั่วไปเรื่องรุ่นนั้น
 3. คัดลอกตัวเลขและรหัสรุ่นตามที่เห็นทุกตัวอักษร ห้ามแก้ไขรูปแบบ
 4. category ต้องเลือกจากรายการที่กำหนดเท่านั้น โดยดูจากชนิดของอุปกรณ์ในรูป ข้อนี้อนุญาตให้ใช้วิจารณญาณได้
 5. subCat ใส่ได้เฉพาะเมื่อ category ที่เลือกมีรายการย่อย และต้องตรงกับรายการย่อยนั้น ถ้าไม่มีให้ใส่ null
 6. assetName ตั้งชื่อทรัพย์สินสั้นๆ เป็นภาษาไทย จากชนิดอุปกรณ์ + แบรนด์ + รุ่น ที่อ่านได้
-7. ถ้ารูปไม่ใช่ป้าย Nameplate หรือไม่ใช่อุปกรณ์ ให้ตั้ง isNameplate เป็น false และอธิบายใน note
-8. note เขียนสั้นๆ เป็นภาษาไทย บอกว่าอ่านอะไรไม่ได้ หรือรูปมีปัญหาอะไร
+7. ถ้ารูปไม่ใช่ป้าย Nameplate และไม่ใช่เอกสาร Product Specifications Sheet หรือไม่ใช่อุปกรณ์ ให้ตั้ง isNameplate เป็น false และอธิบายใน note
+8. docType ระบุว่าเป็น "nameplate" หรือ "spec_sheet"
+9. note เขียนสั้นๆ เป็นภาษาไทย บอกว่าอ่านอะไรไม่ได้ หรือรูปมีปัญหาอะไร
 
-ห้ามกรอกข้อมูลเชิงพาณิชย์ทุกชนิด เช่น เงื่อนไขการรับประกัน ราคา งบซ่อมบำรุง เลข PO หรือสัญญา เพราะข้อมูลเหล่านี้ไม่มีอยู่บนป้าย Nameplate`;
+ห้ามกรอกข้อมูลเชิงพาณิชย์ทุกชนิด เช่น เงื่อนไขการรับประกัน ราคา งบซ่อมบำรุง เลข PO หรือสัญญา เพราะข้อมูลเหล่านี้ไม่มีอยู่บนป้าย Nameplate หรือ Spec Sheet`;
 
 /** JSON schema handed to Gemini via `response_format`. */
 export function buildOcrSchema(): Record<string, unknown> {
@@ -82,6 +96,7 @@ export function buildOcrSchema(): Record<string, unknown> {
     type: "object",
     properties: {
       isNameplate: { type: "boolean" },
+      docType: { type: "string", nullable: true },
       assetName: str,
       category: { type: "string", nullable: true, enum: CATN },
       subCat: str,
@@ -93,8 +108,13 @@ export function buildOcrSchema(): Record<string, unknown> {
       mfgDate: str,
       capacity: str,
       power: str,
-      standards: str,
+      utility: str,
       dimWeight: str,
+      operatingCondition: str,
+      standards: str,
+      functional: str,
+      usefulLife: str,
+      designLife: str,
       confidence: { type: "string", enum: ["high", "medium", "low"] },
       note: str,
     },
@@ -160,6 +180,7 @@ export function parseOcrResponse(text: string): OcrResult {
     // Only an explicit false means "not a nameplate"; a missing flag is treated as
     // a plate so a stingy response still yields whatever fields were read.
     isNameplate: reading.isNameplate !== false,
+    docType: clean(reading.docType) || (reading.isNameplate !== false ? "nameplate" : ""),
   };
 }
 

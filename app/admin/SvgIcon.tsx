@@ -40,8 +40,8 @@ type SvgIconProps = {
 export function SvgIcon({ className, paths }: SvgIconProps) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      {paths.map((d) => (
-        <path key={d} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={d} />
+      {paths.map((d, i) => (
+        <path key={`${d}-${i}`} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={d} />
       ))}
     </svg>
   );

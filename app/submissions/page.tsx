@@ -19,7 +19,7 @@ import { StatCard } from "../../components/StatCard";
 import { StatusBadge } from "../../components/StatusBadge";
 
 export default function Page() {
-  const session = useRequireAuth(["buyer", "admin"]);
+  const session = useRequireAuth(["buyer", "admin", "supplier"]);
   const router = useRouter();
   const { message, visible, show } = useToast();
   const [, forceRefresh] = useState(0);
@@ -35,13 +35,26 @@ export default function Page() {
     ? []
     : role === "admin"
       ? Store.all()
-      : Store.all().filter((r) =>
-          Permissions.canView(
-            session.email,
-            r.values?.category as string | undefined,
-            role!,
-          ),
-        );
+      : role === "supplier"
+        ? Store.all().filter((r) => {
+            const sMail = (session.email || "").toLowerCase();
+            const sCode = (session.code || "").toLowerCase();
+            const sName = (session.name || "").toLowerCase();
+            const rMail = (r.email || "").toLowerCase();
+            const rSup = String(r.values?.sup || "").toLowerCase();
+            return (
+              rMail === sMail ||
+              (Boolean(sCode) && rSup.includes(sCode)) ||
+              (Boolean(sName) && rSup.includes(sName))
+            );
+          })
+        : Store.all().filter((r) =>
+            Permissions.canView(
+              session.email,
+              r.values?.category as string | undefined,
+              role!,
+            ),
+          );
 
   const sorted = [...accessible].sort((a, b) => b.at - a.at);
 
@@ -128,8 +141,14 @@ export default function Page() {
                 Supplier Portal
               </span>
             </Link>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200">
-              {role === "admin" ? "Admin" : "Buyer"}
+            <span
+              className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
+                role === "supplier"
+                  ? "bg-blue-100 text-blue-800 border-blue-200"
+                  : "bg-emerald-100 text-emerald-800 border-emerald-200"
+              }`}
+            >
+              {role === "admin" ? "Admin" : role === "supplier" ? "Supplier" : "Buyer"}
             </span>
             <span className="text-sm text-gray-600 font-medium">
               {session.name}
@@ -148,9 +167,9 @@ export default function Page() {
             ) : null}
             <Link
               href="/form"
-              className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg px-4 py-2 transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg px-4 py-2 transition-colors flex items-center gap-1.5"
             >
-              กรอกฟอร์มใหม่
+              <span>+ กรอกฟอร์มใหม่</span>
             </Link>
             <button
               onClick={Auth.logout}
@@ -161,12 +180,37 @@ export default function Page() {
           </div>
         </div>
         <div className="w-full px-6 md:px-12 pb-3 font-bold text-lg text-gray-800">
-          รายการเครื่องจักรและอุปกรณ์ที่ส่งเข้ามา
+          {role === "supplier"
+            ? "ประวัติการส่งข้อมูลเครื่องจักรและอุปกรณ์ของคุณ"
+            : "รายการเครื่องจักรและอุปกรณ์ที่ส่งเข้ามา"}
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
-        {role === "buyer" ? (
+        {role === "supplier" ? (
+          <div className="mb-4 p-4 bg-white rounded-2xl border border-blue-100 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shrink-0 font-bold text-lg">
+                📋
+              </div>
+              <div>
+                <div className="text-sm font-bold text-gray-900">
+                  ประวัติการส่งข้อมูลเครื่องจักร &amp; อุปกรณ์ของคุณ
+                </div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  คุณสามารถติดตามสถานะการตรวจสอบของ Buyer ได้ที่นี่ รายการที่ผ่านการตรวจสอบจะแสดงสถานะ{" "}
+                  <span className="font-semibold text-emerald-700">ตรวจแล้ว (Complete)</span>
+                </div>
+              </div>
+            </div>
+            <Link
+              href="/form"
+              className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors shrink-0 shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
+            >
+              <span>+ กรอกเครื่องจักรใหม่</span>
+            </Link>
+          </div>
+        ) : role === "buyer" ? (
           <div className="mb-4 p-4 bg-white rounded-2xl border border-emerald-200 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
@@ -198,7 +242,7 @@ export default function Page() {
           </div>
         ) : null}
 
-        {returnedCount > 0 ? (
+        {role === "buyer" && returnedCount > 0 ? (
           <div className="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-2xl shadow-xs text-rose-900 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0 animate-ping" />
@@ -207,8 +251,7 @@ export default function Page() {
                   มีเอกสารที่ Admin ส่งคืนให้คุณแก้ไข
                 </div>
                 <div className="text-xs text-rose-700 mt-0.5">
-                  พบ {returnedCount} รายการที่ Admin
-                  ส่งคืนและรอการตรวจสอบ/แก้ไขของคุณ
+                  พบ {returnedCount} รายการที่ส่งคืนและรอการตรวจสอบ/แก้ไข
                 </div>
               </div>
             </div>
@@ -230,15 +273,23 @@ export default function Page() {
             colorClassName="text-amber-600"
           />
           <StatCard
-            label="ตรวจ/แก้ไขแล้ว"
+            label={role === "supplier" ? "ตรวจแล้ว (Complete)" : "ตรวจ/แก้ไขแล้ว"}
             value={revCount}
             colorClassName="text-emerald-700"
           />
-          <StatCard
-            label="จาก Supplier"
-            value={supCount}
-            colorClassName="text-blue-700"
-          />
+          {role === "supplier" ? (
+            <StatCard
+              label="ส่งคืนให้แก้ไข"
+              value={returnedCount}
+              colorClassName="text-rose-600"
+            />
+          ) : (
+            <StatCard
+              label="จาก Supplier"
+              value={supCount}
+              colorClassName="text-blue-700"
+            />
+          )}
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
@@ -272,15 +323,17 @@ export default function Page() {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-3">
-          <select
-            value={fSrc}
-            onChange={(e) => setFSrc(e.target.value)}
-            className="inp !w-auto"
-          >
-            <option value="">ต้นทาง: ทั้งหมด</option>
-            <option value="supplier">จาก Supplier</option>
-            <option value="buyer">จาก Buyer</option>
-          </select>
+          {role !== "supplier" ? (
+            <select
+              value={fSrc}
+              onChange={(e) => setFSrc(e.target.value)}
+              className="inp !w-auto"
+            >
+              <option value="">ต้นทาง: ทั้งหมด</option>
+              <option value="supplier">จาก Supplier</option>
+              <option value="buyer">จาก Buyer</option>
+            </select>
+          ) : null}
           <select
             value={fCat}
             onChange={(e) => setFCat(e.target.value)}
@@ -303,15 +356,19 @@ export default function Page() {
             className="inp !w-auto"
           >
             <option value="">สถานะ: ทั้งหมด</option>
-            <option value="รอ Buyer ตรวจ">รอ Buyer ตรวจ</option>
-            <option value="ตรวจ/แก้ไขแล้ว">ตรวจ/แก้ไขแล้ว</option>
-            <option value="ส่งคืนให้ Buyer แก้ไข">ส่งคืนให้ Buyer แก้ไข</option>
+            <option value="รอ Buyer ตรวจ">รอ Buyer ตรวจ (Pending)</option>
+            <option value="ตรวจ/แก้ไขแล้ว">ตรวจแล้ว (Complete)</option>
+            <option value="ส่งคืนให้ Buyer แก้ไข">ส่งคืนให้แก้ไข</option>
           </select>
           <input
             value={fQ}
             onChange={(e) => setFQ(e.target.value)}
             className="inp !w-auto flex-1 min-w-[160px]"
-            placeholder="ค้นหา ชื่อ รุ่น Supplier ผู้ส่ง"
+            placeholder={
+              role === "supplier"
+                ? "ค้นหา ชื่อเครื่องจักร, รุ่น, หมายเหตุ..."
+                : "ค้นหา ชื่อ รุ่น Supplier ผู้ส่ง"
+            }
           />
         </div>
 
@@ -323,7 +380,11 @@ export default function Page() {
                 <th className="p-3">รายการ</th>
                 <th className="p-3">Category</th>
                 <th className="p-3">Sub Category</th>
-                <th className="p-3">ผู้ส่ง</th>
+                {role === "supplier" ? (
+                  <th className="p-3">รุ่น / ผู้ตรวจ</th>
+                ) : (
+                  <th className="p-3">ผู้ส่ง</th>
+                )}
                 <th className="p-3">สถานะ</th>
                 <th className="p-3 text-right">การจัดการ</th>
               </tr>
@@ -332,7 +393,9 @@ export default function Page() {
               {filtered.map((r) => (
                 <tr
                   key={r.id}
-                  className={`border-t hover:bg-gray-50 transition-colors ${r.status === "ส่งคืนให้ Buyer แก้ไข" ? "bg-rose-50/30" : ""}`}
+                  className={`border-t hover:bg-gray-50 transition-colors ${
+                    r.status === "ส่งคืนให้ Buyer แก้ไข" ? "bg-rose-50/30" : ""
+                  }`}
                 >
                   <td className="p-3 whitespace-nowrap text-gray-500 text-xs">
                     {fdt(r.at)}
@@ -353,18 +416,40 @@ export default function Page() {
                   <td className="p-3 text-gray-600 text-xs">
                     {(r.values?.subCat as string) || "-"}
                   </td>
-                  <td className="p-3 text-gray-600 text-xs">
-                    <div className="font-medium text-gray-800">
-                      {((r.values?.sup as string) || "")
-                        .split("/")[1]
-                        ?.trim() || r.email}
-                    </div>
-                    <div className="text-gray-400 font-mono text-[11px]">
-                      {r.email}
-                    </div>
-                  </td>
+                  {role === "supplier" ? (
+                    <td className="p-3 text-gray-600 text-xs">
+                      <div className="font-medium text-gray-800">
+                        {String(r.values?.model || r.values?.model2 || r.values?.brand || "-")}
+                      </div>
+                      <div className="text-gray-400 font-mono text-[11px]">
+                        {r.updatedBy ? `ตรวจโดย: ${r.updatedBy}` : "รอ Buyer ตรวจสอบ"}
+                      </div>
+                    </td>
+                  ) : (
+                    <td className="p-3 text-gray-600 text-xs">
+                      <div className="font-medium text-gray-800">
+                        {((r.values?.sup as string) || "")
+                          .split("/")[1]
+                          ?.trim() || r.email}
+                      </div>
+                      <div className="text-gray-400 font-mono text-[11px]">
+                        {r.email}
+                      </div>
+                    </td>
+                  )}
                   <td className="p-3 whitespace-nowrap">
-                    <StatusBadge status={r.status} />
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <StatusBadge status={r.status} />
+                      {r.status === "ตรวจ/แก้ไขแล้ว" ? (
+                        <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-1.5 py-0.5 rounded">
+                          Complete
+                        </span>
+                      ) : r.status === "รอ Buyer ตรวจ" ? (
+                        <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/80 border border-amber-300 px-1.5 py-0.5 rounded">
+                          Pending
+                        </span>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="p-3 text-right whitespace-nowrap">
                     <button
@@ -373,12 +458,18 @@ export default function Page() {
                     >
                       ดู
                     </button>{" "}
-                    <button
-                      onClick={() => editSub(r)}
-                      className="text-green-700 hover:text-green-900 font-semibold hover:underline text-xs"
-                    >
-                      แก้ไข
-                    </button>
+                    {role === "supplier" && r.status === "ตรวจ/แก้ไขแล้ว" ? (
+                      <span className="text-xs text-gray-400 font-medium">
+                        อนุมัติแล้ว
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => editSub(r)}
+                        className="text-green-700 hover:text-green-900 font-semibold hover:underline text-xs"
+                      >
+                        แก้ไข
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -389,14 +480,25 @@ export default function Page() {
               <p className="mb-3 text-base">
                 {role === "buyer" && allowedCats.length === 0
                   ? "บัญชีของคุณยังไม่ได้รับมอบหมายสิทธิ์ใน Category ใด จึงไม่สามารถแสดงรายการได้ (กรุณาติดต่อ Admin)"
-                  : "ยังไม่มีรายการที่ส่งเข้ามาตามเงื่อนไขที่เลือก"}
+                  : role === "supplier"
+                    ? "คุณยังไม่มีประวัติการส่งข้อมูล หรือไม่มีรายการตรงตามเงื่อนไขที่ค้นหา"
+                    : "ยังไม่มีรายการที่ส่งเข้ามาตามเงื่อนไขที่เลือก"}
               </p>
-              <button
-                onClick={resetMockData}
-                className="bg-green-700 hover:bg-green-800 text-white text-xs px-4 py-2 rounded-xl font-medium shadow-sm transition-colors"
-              >
-                โหลดข้อมูลตัวอย่าง (Mock Data 6 รายการ)
-              </button>
+              {role === "supplier" ? (
+                <Link
+                  href="/form"
+                  className="inline-flex items-center bg-green-700 hover:bg-green-800 text-white text-xs px-4 py-2 rounded-xl font-medium shadow-sm transition-colors"
+                >
+                  + กรอกข้อมูลเครื่องจักรเครื่องแรก
+                </Link>
+              ) : (
+                <button
+                  onClick={resetMockData}
+                  className="bg-green-700 hover:bg-green-800 text-white text-xs px-4 py-2 rounded-xl font-medium shadow-sm transition-colors"
+                >
+                  โหลดข้อมูลตัวอย่าง (Mock Data 6 รายการ)
+                </button>
+              )}
             </div>
           ) : null}
         </div>
@@ -417,15 +519,27 @@ export default function Page() {
           <>
             <div className="flex justify-between items-start mb-4">
               <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <StatusBadge status={viewing.status} />
+                  {viewing.status === "ตรวจ/แก้ไขแล้ว" ? (
+                    <span className="text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
+                      Complete
+                    </span>
+                  ) : viewing.status === "รอ Buyer ตรวจ" ? (
+                    <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full">
+                      Pending (รอตรวจ)
+                    </span>
+                  ) : null}
+                </div>
                 <h3 className="text-lg font-bold text-gray-900">
                   {viewing.title}
                 </h3>
                 <p className="text-sm text-gray-500 mt-0.5">
-                  {fdt(viewing.at)} / {viewing.email}
+                  วันที่ส่ง: {fdt(viewing.at)} / ผู้ส่ง: {viewing.email}
                   {viewing.updatedBy ? (
                     <>
                       <br />
-                      <span className="text-green-700">
+                      <span className="text-green-700 font-medium">
                         แก้ไขล่าสุด {fdt(viewing.updatedAt || viewing.at)} โดย{" "}
                         {viewing.updatedBy}
                       </span>
@@ -440,7 +554,37 @@ export default function Page() {
                 &times;
               </button>
             </div>
-            {viewing.status === "ส่งคืนให้ Buyer แก้ไข" ||
+            {viewing.status === "ตรวจ/แก้ไขแล้ว" ? (
+              <div className="mb-4 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                  <div>
+                    <div className="font-bold">ข้อมูลเครื่องจักรนี้ได้รับการตรวจสอบเรียบร้อยแล้ว (Complete)</div>
+                    <div className="text-emerald-700 text-[11px] mt-0.5">
+                      {viewing.updatedBy ? `ตรวจสอบและบันทึกโดย ${viewing.updatedBy}` : "บันทึกในระบบเรียบร้อยแล้ว"}
+                    </div>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-xs border border-emerald-200 shrink-0">
+                  ✓ ตรวจสอบแล้ว
+                </span>
+              </div>
+            ) : viewing.status === "รอ Buyer ตรวจ" ? (
+              <div className="mb-4 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+                  <div>
+                    <div className="font-bold">สถานะ: รอ Buyer ตรวจสอบข้อมูล (Pending)</div>
+                    <div className="text-amber-700 text-[11px] mt-0.5">
+                      ข้อมูลส่งเข้าระบบแล้ว กำลังรอเจ้าหน้าที่ฝ่ายจัดซื้อ (Buyer) ตรวจสอบและลงทะเบียน
+                    </div>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold text-xs border border-amber-200 shrink-0">
+                  กำลังรอตรวจ
+                </span>
+              </div>
+            ) : viewing.status === "ส่งคืนให้ Buyer แก้ไข" ||
             viewing.returnReason ? (
               <div className="mb-4 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-900 text-xs">
                 <div className="font-bold flex items-center gap-1.5">
@@ -480,16 +624,22 @@ export default function Page() {
               >
                 ปิด
               </button>
-              <button
-                onClick={() => {
-                  const v = viewing;
-                  setViewing(null);
-                  if (v) editSub(v);
-                }}
-                className="bg-green-700 hover:bg-green-800 text-white rounded-xl px-5 py-2 text-sm font-semibold shadow-sm transition-colors"
-              >
-                แก้ไขรายการนี้
-              </button>
+              {role === "supplier" && viewing.status === "ตรวจ/แก้ไขแล้ว" ? (
+                <span className="inline-flex items-center text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl">
+                  ✓ เอกสารนี้สมบูรณ์แล้ว
+                </span>
+              ) : (
+                <button
+                  onClick={() => {
+                    const v = viewing;
+                    setViewing(null);
+                    if (v) editSub(v);
+                  }}
+                  className="bg-green-700 hover:bg-green-800 text-white rounded-xl px-5 py-2 text-sm font-semibold shadow-sm transition-colors"
+                >
+                  แก้ไขรายการนี้
+                </button>
+              )}
             </div>
           </>
         ) : null}

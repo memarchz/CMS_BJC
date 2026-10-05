@@ -25,7 +25,7 @@ export function ItemDetailModal({ open, onClose, sub, onReturn, onEdit, onViewSu
       open={open && sub !== null}
       onClose={onClose}
       backdropClassName="bg-black/40 backdrop-blur-xs z-50 flex items-start justify-center p-4 overflow-y-auto"
-      panelClassName="bg-white rounded-3xl w-full max-w-2xl my-8 p-6 sm:p-7 shadow-2xl border border-gray-100 animate-fadein"
+      panelClassName="bg-white rounded-2xl w-full max-w-2xl my-8 p-6 sm:p-7 shadow-2xl border border-gray-100 animate-fadein"
     >
       {sub ? (
         <>

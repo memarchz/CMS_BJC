@@ -25,29 +25,73 @@ describe("PhotoScanModal", () => {
     expect(screen.getByText(/ไม่รองรับ Live Camera/)).toBeInTheDocument();
   });
 
-  it("selecting the Daikin preset shows its extracted brand/model in the summary list", () => {
+  it("shows extracted brand/model in the summary list after scan", async () => {
+    mockOcrResponse(true, {
+      fields: { brand: "Daikin", model: "FTV50QV1V", category: "Refrigeration system" },
+      confidence: "high",
+      isNameplate: true,
+    });
     render(<PhotoScanModal open={true} onClose={jest.fn()} onApply={jest.fn()} role="supplier" />);
-    fireEvent.click(screen.getByText("อัปโหลดรูป"));
-    fireEvent.click(screen.getByText("Daikin Inverter FTV50"));
-    expect(screen.getByText("Daikin")).toBeInTheDocument();
+    uploadPhoto();
+    expect(await screen.findByText("Daikin")).toBeInTheDocument();
     expect(screen.getByText("FTV50QV1V")).toBeInTheDocument();
   });
 
-  it("applying the scanned preset calls onApply with the preset data and a data-URL image", () => {
+  it("applying the scanned photo calls onApply with the extracted data and an image data URL", async () => {
     const onApply = jest.fn();
+    mockOcrResponse(true, {
+      fields: { brand: "Daikin", model: "FTV50QV1V", category: "Refrigeration system" },
+      confidence: "high",
+      isNameplate: true,
+    });
     render(<PhotoScanModal open={true} onClose={jest.fn()} onApply={onApply} role="supplier" />);
-    fireEvent.click(screen.getByText("อัปโหลดรูป"));
-    fireEvent.click(screen.getByText("Daikin Inverter FTV50"));
+    uploadPhoto();
+    await screen.findByText("Daikin");
     fireEvent.click(screen.getByText(/นำข้อมูลและรูปถ่ายเข้าฟอร์ม/));
     expect(onApply).toHaveBeenCalledWith(
       expect.objectContaining({ brand: "Daikin", model: "FTV50QV1V" }),
-      expect.stringContaining("data:image/svg+xml")
+      expect.stringContaining("data:image/")
     );
   });
 
-  it("blocks applying a preset outside the buyer's permitted categories", () => {
+  it("selecting and applying a Product Specifications Sheet scan includes technical specification fields", async () => {
+    const onApply = jest.fn();
+    mockOcrResponse(true, {
+      fields: {
+        brand: "Daikin",
+        model: "FTV50QV1V",
+        util: "น้ำหล่อเย็น 0.5 ลบ.ม./ชม.",
+        opc: "0-43°C, RH ≤ 85%",
+        life: "10",
+      },
+      confidence: "high",
+      isNameplate: true,
+      docType: "spec_sheet",
+    });
+    render(<PhotoScanModal open={true} onClose={jest.fn()} onApply={onApply} role="supplier" />);
+    uploadPhoto();
+    expect(await screen.findByText("Daikin")).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/นำข้อมูลและรูปถ่ายเข้าฟอร์ม/));
+    expect(onApply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        brand: "Daikin",
+        model: "FTV50QV1V",
+        util: "น้ำหล่อเย็น 0.5 ลบ.ม./ชม.",
+        opc: "0-43°C, RH ≤ 85%",
+        life: "10",
+      }),
+      expect.stringContaining("data:image/")
+    );
+  });
+
+  it("blocks applying a scan outside the buyer's permitted categories", async () => {
     const onApply = jest.fn();
     window.alert = jest.fn();
+    mockOcrResponse(true, {
+      fields: { brand: "Daikin", model: "FTV50QV1V", category: "Refrigeration system" },
+      confidence: "high",
+      isNameplate: true,
+    });
     render(
       <PhotoScanModal
         open={true}
@@ -57,8 +101,8 @@ describe("PhotoScanModal", () => {
         buyerAllowedCategories={["Chiller"]}
       />
     );
-    fireEvent.click(screen.getByText("อัปโหลดรูป"));
-    fireEvent.click(screen.getByText("Daikin Inverter FTV50")); // category: Refrigeration system
+    uploadPhoto();
+    await screen.findByText("Daikin");
     fireEvent.click(screen.getByText(/นำข้อมูลและรูปถ่ายเข้าฟอร์ม/));
     expect(onApply).not.toHaveBeenCalled();
     expect(window.alert).toHaveBeenCalled();
@@ -139,15 +183,6 @@ describe("PhotoScanModal", () => {
 
       expect(await screen.findByText(/ภาพเบลอมาก/)).toBeInTheDocument();
     });
-
-    it("never calls the API for the canned sample nameplates", async () => {
-      global.fetch = jest.fn() as unknown as typeof fetch;
-      render(<PhotoScanModal open={true} onClose={jest.fn()} onApply={jest.fn()} role="supplier" />);
-      fireEvent.click(screen.getByText("อัปโหลดรูป"));
-      fireEvent.click(screen.getByText("Daikin Inverter FTV50"));
-
-      await waitFor(() => expect(screen.getByText("Daikin")).toBeInTheDocument());
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
   });
 });
+

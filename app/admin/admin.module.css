@@ -4,12 +4,13 @@
 }
 
 .sidebarLink.active {
-  background-color: #e6f7f0;
-  color: #059669;
+  background-color: #ecfdf5;
+  color: #065f46;
   font-weight: 600;
+  border: 1px solid #a7f3d0;
 }
 
 .sidebarLink:not(.active):hover {
-  background-color: #f1f5f9;
-  color: #0f172a;
+  background-color: #f3f4f6;
+  color: #111827;
 }

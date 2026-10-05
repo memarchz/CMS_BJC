@@ -26,12 +26,19 @@ export function SupplierDetailModal({ open, onClose, supplier, onFilterInMainLis
     totalVal += parseFloat(String(it.values?.price ?? "")) || 0;
   });
 
+  const catMap: Record<string, number> = {};
+  items.forEach((it) => {
+    const cat = String(it.values?.category || "ทั่วไป (Uncategorized)");
+    catMap[cat] = (catMap[cat] || 0) + 1;
+  });
+  const catBreakdown = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+
   return (
     <AdminModal
       open={open && supplier !== null}
       onClose={onClose}
       backdropClassName="bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
-      panelClassName="bg-white rounded-3xl w-full max-w-3xl my-6 p-6 sm:p-8 shadow-2xl border border-gray-100"
+      panelClassName="bg-white rounded-2xl w-full max-w-3xl my-6 p-6 sm:p-8 shadow-2xl border border-gray-100"
     >
       {supplier ? (
         <>
@@ -51,8 +58,27 @@ export function SupplierDetailModal({ open, onClose, supplier, onFilterInMainLis
                   >
                     {supplier.code}
                   </span>
-                  {/* The original never fills #sd-status, so it renders empty */}
-                  <span id="sd-status" className="px-2 py-0.5 rounded-full font-semibold"></span>
+                  <span
+                    id="sd-status"
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                      supplier.status === "อนุมัติแล้ว"
+                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                        : supplier.status === "รอตรวจสอบ"
+                        ? "bg-amber-50 text-amber-800 border-amber-200"
+                        : "bg-gray-100 text-gray-700 border-gray-200"
+                    }`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        supplier.status === "อนุมัติแล้ว"
+                          ? "bg-emerald-500"
+                          : supplier.status === "รอตรวจสอบ"
+                          ? "bg-amber-500 animate-pulse"
+                          : "bg-gray-400"
+                      }`}
+                    />
+                    <span>{supplier.status || "อนุมัติแล้ว"}</span>
+                  </span>
                 </div>
               </div>
             </div>
@@ -112,6 +138,29 @@ export function SupplierDetailModal({ open, onClose, supplier, onFilterInMainLis
                 THB
               </div>
             </div>
+
+            {catBreakdown.length > 0 && (
+              <div className="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div className="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>สรุปตามแต่ละบล็อก / หมวดหมู่ที่กรอกเข้ามา ({catBreakdown.length} หมวด):</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {catBreakdown.map(([cat, count]) => (
+                    <span
+                      key={cat}
+                      className="inline-flex items-center gap-1.5 bg-white text-gray-800 px-2.5 py-1 rounded-lg border border-gray-200 text-xs font-medium shadow-2xs"
+                    >
+                      <span>{cat}</span>
+                      <span className="bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full text-[10px]">
+                        {count} เครื่อง
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="max-h-[200px] overflow-y-auto border border-gray-100 rounded-xl">
               <table className="w-full text-xs text-left">
                 <thead className="bg-gray-100 text-gray-600">

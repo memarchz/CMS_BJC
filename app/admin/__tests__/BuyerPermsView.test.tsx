@@ -101,9 +101,54 @@ describe("BuyerPermsView", () => {
     expect(Permissions.get("gone@demo.co.th")).toEqual([]);
   });
 
+  it("allows switching role tabs to filter Admin, User, and Buyer", () => {
+    renderView();
+    expect(screen.getByRole("button", { name: /Admin \(/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /User \(/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Buyer \(/ })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Admin \(/ }));
+    expect(screen.getByText("admin@demo.co.th")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /User \(/ }));
+    expect(screen.getByText("supplier@demo.co.th")).toBeInTheDocument();
+  });
+
+  it("shows clean role permissions for an admin user and can save admin privileges", () => {
+    const { onToast } = renderView({ initialEmail: "admin@demo.co.th" });
+    expect(screen.getByText("Admin Account")).toBeInTheDocument();
+    expect(screen.getByText(/ขอบเขตสิทธิ์ของผู้ดูแลระบบ/)).toBeInTheDocument();
+    expect(screen.getByText(/เข้าถึงทรัพย์สินครบ 14 หมวดหมู่/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText("บันทึกสิทธิ์ Admin"));
+    expect(onToast).toHaveBeenCalledWith(expect.stringContaining("บันทึกสิทธิ์ Admin"));
+  });
+
+  it("shows clean supplier permissions for a user and can save user privileges", () => {
+    const { onToast } = renderView({ initialEmail: "supplier@demo.co.th" });
+    expect(screen.getByText("User Account")).toBeInTheDocument();
+    expect(screen.getByText(/ขอบเขตสิทธิ์ของ User \/ ซัพพลายเออร์/)).toBeInTheDocument();
+    expect(screen.getByText(/ไม่จำเป็นต้องเลือก Category/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText("บันทึกสิทธิ์ User"));
+    expect(onToast).toHaveBeenCalledWith(expect.stringContaining("บันทึกสิทธิ์ User"));
+  });
+
+  it("can add a new user with admin role selected", () => {
+    renderView();
+    const roleSelect = screen.getByLabelText("บทบาทผู้ใช้");
+    fireEvent.change(roleSelect, { target: { value: "admin" } });
+    fireEvent.change(screen.getByPlaceholderText("เช่น buyer5@demo.co.th"), {
+      target: { value: "newadmin@demo.co.th" },
+    });
+    fireEvent.click(screen.getByText("+ เพิ่ม"));
+    expect(Permissions.get("newadmin@demo.co.th")).toEqual([]);
+    expect(J.get<{ role: string; email: string }[]>("portal_users", []).some((u) => u.email === "newadmin@demo.co.th" && u.role === "admin")).toBe(true);
+    expect(screen.getByText("Admin Account")).toBeInTheDocument();
+  });
+
   it("'กลับหน้าหลัก' buttons call onBack", () => {
     const { onBack } = renderView();
     fireEvent.click(within(screen.getByRole("heading", { level: 1 }).closest("div.bg-white") as HTMLElement).getByRole("button", { name: "กลับหน้าหลัก" }));
     expect(onBack).toHaveBeenCalled();
   });
 });
+

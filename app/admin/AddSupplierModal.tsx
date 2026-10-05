@@ -175,7 +175,7 @@ export function AddSupplierModal({ open, onClose, onSaved }: Props) {
       open={open}
       onClose={onClose}
       backdropClassName="bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
-      panelClassName="bg-white rounded-3xl w-full max-w-lg my-6 p-6 sm:p-8 shadow-2xl border border-gray-100"
+      panelClassName="bg-white rounded-2xl w-full max-w-lg my-6 p-6 sm:p-8 shadow-2xl border border-gray-100"
     >
       <AddSupplierForm onClose={onClose} onSaved={onSaved} />
     </AdminModal>

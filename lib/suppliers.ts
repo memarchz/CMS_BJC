@@ -74,7 +74,7 @@ export const DEFAULT_SUPPLIERS: Supplier[] = [
     email: 'crawford.logistics@supplier.co.th',
     address: '99 หมู่ 3 ตำบลบางเสาธง อำเภอบางเสาธง สมุทรปราการ 10570',
     categories: ['Logistic Equipment', 'Fork lift'],
-    status: 'อนุมัติแล้ว',
+    status: 'รอตรวจสอบ',
     registeredAt: Date.now() - 150 * 86400 * 1000
   },
   {

@@ -8,6 +8,7 @@ type PhotoPreset = {
   brand: string;
   model: string;
   serial: string;
+  type?: "nameplate" | "spec_sheet";
   data: Record<string, string | number>;
 };
 
@@ -262,8 +263,189 @@ const PHOTO_PRESETS: Record<string, PhotoPreset> = {
       ef: 0.4999,
       cprice: 200
     }
+  },
+  daikin_spec: {
+    title: 'Daikin Inverter FTV50 - Product Specifications Sheet',
+    brand: 'Daikin Industries, Ltd. (Japan)',
+    model: 'FTV50QV1V',
+    serial: 'DK26X-001234',
+    type: 'spec_sheet',
+    data: {
+      assetName: 'ตู้แช่เย็น Daikin Inverter FTV50',
+      category: 'Refrigeration system',
+      subCat: '',
+      brand: 'Daikin',
+      model: 'FTV50QV1V',
+      serial: 'DK26X-001234',
+      mtnCode: 'REF-1-1-0-001',
+      po: 'PO-2026-004512',
+      mfr: 'Daikin Industries, Ltd. (Japan)',
+      series: 'Inverter FTV Series',
+      model2: 'FTV50QV1V',
+      serial2: 'DK26X-001234',
+      origin: 'Japan',
+      mfgDate: '2026-03',
+      cap: '18,000 BTU / 2.5 kW',
+      power: '380V 3P 50Hz / 2.5 kW',
+      util: 'น้ำหล่อเย็น 0.5 ลบ.ม./ชม.',
+      dim: '900×320×290 มม. / 38 กก.',
+      opc: '0-43°C, RH ≤ 85%',
+      std: 'มอก. 1155 / CE / ISO 9001 เลขที่ TH-2026-0456',
+      func: 'ปรับอุณหภูมิ 2-6°C สำหรับแช่อาหารสด พร้อมระบบละลายน้ำแข็ง Defrost Cycle',
+      docs: 'Daikin_FTV50_Product_Specifications_Sheet.pdf',
+      wStart: '2026-04-01',
+      wEnd: '2029-03-31',
+      wScope: 'อะไหล่+ค่าแรง',
+      wCond: 'ใช้อะไหล่แท้ Daikin เท่านั้น และต้องตรวจเช็คตามระยะเวลาที่กำหนด',
+      wExt: '12,000 / ปี',
+      sla: 'ตอบรับ 4 / แก้ไข 24',
+      svc: 'Daikin Service Call Center / 02-123-4567 / service@daikin.co.th',
+      train: 'อบรมช่างบำรุงรักษา 4 ชม./ครั้ง พร้อมมอบคู่มือการใช้งาน',
+      spDocs: 'SparePartList_FTV50.xlsx',
+      spClass: 'Critical',
+      spCur: 'THB',
+      spInt: '8,000 ชม.',
+      lead: '15 วัน (มี Stock ในไทย)',
+      minStock: 2,
+      avail: 10,
+      life: 10,
+      hrs: 8760,
+      design: '87,600 ชม. / ใช้งานต่อเนื่อง 24 ชม.',
+      econ: 8,
+      overhaul: 'ปีที่ 6 / งบประมาณ 45,000 THB',
+      resid: 10,
+      eos: 2038,
+      disp: 'ถ่ายสารทำความเย็น R-410A ก่อนทิ้ง ส่งโรงงานรีไซเคิลที่ได้รับอนุญาต',
+      price: 180000,
+      maint: 12000,
+      pm: '2,500 / ครั้ง × 4 ครั้ง/ปี',
+      cons: 3500,
+      labor: 450,
+      energy: 2.5,
+      esc: 3,
+      ef: 0.4999,
+      cprice: 200,
+    }
+  },
+  trane_spec: {
+    title: 'Trane CenTraVac - Product Specifications Sheet',
+    brand: 'Trane Commercial Systems, USA',
+    model: 'CVHE-0500',
+    serial: 'TRN-2026-CH098',
+    type: 'spec_sheet',
+    data: {
+      assetName: 'เครื่องทำน้ำเย็น Chiller Trane 500 Ton',
+      category: 'Chiller',
+      subCat: '',
+      brand: 'Trane',
+      model: 'CVHE-0500',
+      serial: 'TRN-2026-CH098',
+      mtnCode: 'CHL-1-1-0-002',
+      po: 'PO-2026-003881',
+      mfr: 'Trane Commercial Systems, USA',
+      series: 'CenTraVac Series',
+      model2: 'CVHE-0500',
+      serial2: 'TRN-2026-CH098',
+      origin: 'USA',
+      mfgDate: '2025-11',
+      cap: '500 RT / 1,758 kW',
+      power: '380V 3P 50Hz / 350 kW',
+      util: 'น้ำหล่อเย็น Cooling Tower 1,500 GPM',
+      dim: '4,800×2,400×2,600 มม. / 8,500 กก.',
+      opc: 'ห้องเครื่อง Chiller Room 15-35°C',
+      std: 'AHRI 550/590, ASME Section VIII, มอก.',
+      func: 'ปรับโหลดการทำความเย็นอัตโนมัติด้วย VFD 10-100%, ควบคุมผ่านระบบ BAS/BMS',
+      docs: 'Trane_CVHE_Product_Specifications_Sheet.pdf',
+      wStart: '2026-01-15',
+      wEnd: '2029-01-14',
+      wScope: 'อะไหล่+ค่าแรง',
+      wCond: 'ต้องบำรุงรักษาโดยช่างผู้เชี่ยวชาญจาก Trane Thailand เท่านั้น',
+      wExt: '150,000 / ปี',
+      sla: 'ตอบรับ 2 / แก้ไข 12',
+      svc: 'Trane Call Center 24hr / 02-704-9999',
+      train: 'อบรมการใช้งานและการแก้ไขปัญหาเบื้องต้น 16 ชม.',
+      spDocs: 'Trane_CVHE_SpareParts.xlsx',
+      spClass: 'Critical',
+      spCur: 'THB',
+      spInt: '10,000 ชม.',
+      lead: '30 วัน',
+      minStock: 1,
+      avail: 15,
+      life: 25,
+      hrs: 6500,
+      design: '162,500 ชม.',
+      econ: 20,
+      overhaul: 'ปีที่ 10 / 850,000 THB',
+      resid: 5,
+      eos: 2050,
+      disp: 'ดูดเก็บสารทำความเย็น R-1233zd ตามมาตรฐานสิ่งแวดล้อมสากล',
+      price: 4200000,
+      maint: 180000,
+      pm: '25,000 / ครั้ง × 4 ครั้ง/ปี',
+      cons: 45000,
+      labor: 600,
+      energy: 280,
+      esc: 2.5,
+      ef: 0.4999,
+      cprice: 200,
+    }
   }
 };
+
+function generateSpecSheetSVG(title: string, brand: string, model: string, cap: string, power: string, util: string, dim: string, std: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="340" viewBox="0 0 600 340">
+    <defs>
+      <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#047857"/>
+        <stop offset="100%" stop-color="#065f46"/>
+      </linearGradient>
+    </defs>
+    <rect width="600" height="340" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="0" y="0" width="600" height="52" rx="12" fill="url(#headerGrad)"/>
+    <rect x="0" y="44" width="600" height="8" fill="#047857"/>
+    <text x="25" y="33" font-family="'Prompt', sans-serif" font-weight="bold" font-size="15" fill="#ffffff">PRODUCT SPECIFICATIONS SHEET</text>
+    <text x="575" y="33" font-family="'Prompt', sans-serif" font-size="11" fill="#a7f3d0" text-anchor="end">TECHNICAL DATASHEET</text>
+
+    <rect x="25" y="66" width="550" height="28" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+    <text x="35" y="85" font-family="'Prompt', sans-serif" font-weight="bold" font-size="12" fill="#0f172a">${esc(title)}</text>
+
+    <g font-family="'Prompt', sans-serif" font-size="11" fill="#334155">
+      <rect x="25" y="104" width="270" height="32" rx="6" fill="#f1f5f9"/>
+      <text x="35" y="124" font-weight="bold" fill="#64748b">Manufacturer / Brand:</text>
+      <text x="170" y="124" font-weight="bold" fill="#047857">${esc(brand)}</text>
+
+      <rect x="305" y="104" width="270" height="32" rx="6" fill="#f1f5f9"/>
+      <text x="315" y="124" font-weight="bold" fill="#64748b">Model Number:</text>
+      <text x="420" y="124" font-weight="bold" fill="#0f172a">${esc(model)}</text>
+
+      <rect x="25" y="142" width="270" height="32" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="35" y="162" font-weight="bold" fill="#64748b">Capacity / Rating:</text>
+      <text x="170" y="162" font-weight="600" fill="#0f172a">${esc(cap)}</text>
+
+      <rect x="305" y="142" width="270" height="32" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="315" y="162" font-weight="bold" fill="#64748b">Power Requirement:</text>
+      <text x="440" y="162" font-weight="600" fill="#0f172a">${esc(power)}</text>
+
+      <rect x="25" y="180" width="270" height="32" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="35" y="200" font-weight="bold" fill="#64748b">Utility Requirement:</text>
+      <text x="170" y="200" font-weight="600" fill="#0f172a">${esc(util || "-")}</text>
+
+      <rect x="305" y="180" width="270" height="32" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="315" y="200" font-weight="bold" fill="#64748b">Dimension &amp; Weight:</text>
+      <text x="440" y="200" font-weight="600" fill="#0f172a">${esc(dim || "-")}</text>
+
+      <rect x="25" y="218" width="550" height="32" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="35" y="238" font-weight="bold" fill="#64748b">Certified Standards:</text>
+      <text x="170" y="238" font-weight="600" fill="#0f172a">${esc(std || "ISO 9001 / CE / มอก.")}</text>
+    </g>
+
+    <rect x="25" y="260" width="550" height="38" rx="8" fill="#ecfdf5" stroke="#a7f3d0"/>
+    <text x="40" y="284" font-family="'Prompt', sans-serif" font-weight="bold" font-size="11" fill="#047857">VERIFIED PRODUCT SPECIFICATIONS SHEET</text>
+    <rect x="490" y="267" width="70" height="24" rx="4" fill="#047857"/>
+    <text x="525" y="283" font-family="sans-serif" font-weight="bold" font-size="10" fill="#ffffff" text-anchor="middle">OFFICIAL</text>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.trim());
+}
 
 function generateNameplateSVG(brand: string, model: string, serial: string, power: string, cap: string): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="340" viewBox="0 0 600 340">
@@ -320,13 +502,13 @@ type Props = {
   buyerAllowedCategories?: string[];
 };
 
-type Tab = "cam" | "file" | "preset";
+type Tab = "cam" | "file";
 type Stage = "capture" | "scanning" | "preview" | "error";
 type CamFacing = "environment" | "user";
 
 const CAM_UNSUPPORTED = "อุปกรณ์ไม่รองรับ Live Camera กรุณาใช้แท็บอัปโหลดรูปภาพ";
 const CAM_DENIED =
-  'ไม่สามารถเปิดกล้องได้ (สิทธิ์ถูกปฏิเสธ หรือไม่มีกล้อง) กรุณาใช้แท็บ "อัปโหลดรูป" หรือ "ตัวอย่างเนมเพลท"';
+  'ไม่สามารถเปิดกล้องได้ (สิทธิ์ถูกปฏิเสธ หรือไม่มีกล้อง) กรุณาใช้แท็บ "อัปโหลดรูป"';
 
 function cameraSupported(): boolean {
   return typeof navigator !== "undefined" && !!navigator.mediaDevices && !!navigator.mediaDevices.getUserMedia;
@@ -435,7 +617,21 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
    */
   function selectSamplePreset(key: string) {
     const p = PHOTO_PRESETS[key] || PHOTO_PRESETS.daikin;
-    const svgDataUrl = generateNameplateSVG(p.brand, p.model, p.serial, String(p.data.power), String(p.data.cap));
+    let svgDataUrl: string;
+    if (p.type === "spec_sheet") {
+      svgDataUrl = generateSpecSheetSVG(
+        p.title,
+        p.brand,
+        p.model,
+        String(p.data.cap || ""),
+        String(p.data.power || ""),
+        String(p.data.util || ""),
+        String(p.data.dim || ""),
+        String(p.data.std || "")
+      );
+    } else {
+      svgDataUrl = generateNameplateSVG(p.brand, p.model, p.serial, String(p.data.power), String(p.data.cap));
+    }
     setScannedImage(svgDataUrl);
     setScannedData(p.data);
     setScanConfidence("");
@@ -464,6 +660,7 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
         confidence?: string;
         note?: string;
         isNameplate?: boolean;
+        docType?: string;
         error?: string;
       };
 
@@ -473,20 +670,20 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
         return;
       }
       if (payload.isNameplate === false) {
-        setScanError(payload.note || "รูปนี้ไม่ใช่ป้าย Nameplate กรุณาถ่ายป้ายข้อมูลบนตัวเครื่อง");
+        setScanError(payload.note || "รูปนี้ไม่ใช่ป้าย Nameplate หรือเอกสาร Product Specifications Sheet กรุณาถ่ายป้ายข้อมูลบนตัวเครื่องหรือเอกสารสเปก");
         setStage("error");
         return;
       }
 
       const fields = payload.fields || {};
       if (Object.keys(fields).length === 0) {
-        setScanError(payload.note || "อ่านข้อมูลจากรูปนี้ไม่ได้ กรุณาถ่ายให้ชัดขึ้นหรือเข้าใกล้ป้ายมากขึ้น");
+        setScanError(payload.note || "อ่านข้อมูลจากรูปนี้ไม่ได้ กรุณาถ่ายหรืออัปโหลดให้ชัดเจนขึ้น");
         setStage("error");
         return;
       }
 
       // The attachment name is factual metadata about the photo, not a model reading.
-      setScannedData({ ...fields, docs: fileName || "nameplate_camera_capture.jpg" });
+      setScannedData({ ...fields, docs: fileName || "scanned_specification_doc.jpg" });
       setScanConfidence(payload.confidence || "");
       setScanNote(payload.note || "");
       setStage("preview");
@@ -534,14 +731,20 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
   const extracted: [string, string | number | undefined][] = d
     ? [
         ["ยี่ห้อ / Brand", d.brand],
-        ["รุ่น / Model No.", d.model],
-        ["หมายเลขเครื่อง (Serial)", d.serial],
+        ["รุ่น / Model No.", d.model || d.model2],
+        ["หมายเลขเครื่อง (Serial)", d.serial || d.serial2],
         ["หมวดหมู่ (Category)", d.category],
+        ["Sub Category", d.subCat],
         ["พิกัด / Capacity", d.cap],
         ["ระบบไฟฟ้า (Power)", d.power],
+        ["Utility Requirement", d.util],
+        ["ขนาด & น้ำหนัก (Dimension)", d.dim],
+        ["Operating Condition", d.opc],
+        ["มาตรฐานรับรอง", d.std],
+        ["Functional Requirements", d.func],
+        ["อายุการใช้งาน (Useful Life)", d.life ? `${d.life} ปี` : undefined],
         // A real read often misses one or both of these, so don't render "undefined".
         ["ประเทศผู้ผลิต (Origin)", [d.origin, d.mfgDate && "(" + d.mfgDate + ")"].filter(Boolean).join(" ")],
-        ["มาตรฐานรับรอง", d.std],
       ]
     : [];
 
@@ -567,10 +770,10 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
                 ></path>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
               </svg>
-              <h3 className="text-xl font-bold text-gray-900">ถ่ายรูปเนมเพลท / อัปโหลดรูปภาพ</h3>
+              <h3 className="text-xl font-bold text-gray-900">ถ่ายภาพเพื่อกรอกข้อมูลอัตโนมัติ</h3>
             </div>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              ถ่ายรูปป้าย Nameplate ของเครื่องจักร หรืออัปโหลดไฟล์รูปเพื่อสแกนและนำข้อมูลเข้าสู่ฟอร์มอัตโนมัติ
+              ถ่ายภาพป้าย Nameplate หรืออัปโหลดเอกสารสเปกสินค้า เพื่อให้ AI สแกนและกรอกข้อมูลลงฟอร์มอัตโนมัติ
             </p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none">
@@ -579,7 +782,7 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
         </div>
 
         {/* Mode Selector Tabs */}
-        <div className="grid grid-cols-3 gap-1 bg-gray-100 p-1 rounded-2xl mb-4 text-xs sm:text-sm font-semibold">
+        <div className="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-2xl mb-4 text-xs sm:text-sm font-semibold">
           <button type="button" onClick={() => setTab("cam")} id="tab-cam" className={tabClass("cam")}>
             <span>ถ่ายรูปจากกล้อง</span>
           </button>
@@ -670,27 +873,15 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
                 onChange={(e) => handleFileUpload(e.target)}
               />
             </label>
-          </div>
-
-          {/* Tab 3: Presets View */}
-          <div id="panel-preset" className={tab === "preset" ? "" : "hidden"}>
-            <div className="text-xs text-gray-500 mb-2 font-medium">
-              คลิกเลือกป้ายเนมเพลทจำลองเพื่อทดลองระบบสแกนข้อมูลอัตโนมัติ:
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
-              {PRESET_BUTTONS.map(([key, name, desc]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => selectSamplePreset(key)}
-                  className="p-3.5 rounded-2xl border bg-white hover:border-emerald-500 text-left transition-all hover:shadow-sm group"
-                >
-                  <div className="font-bold text-xs text-emerald-900 group-hover:text-emerald-700 flex items-center gap-1.5">
-                    <span>{name}</span>
-                  </div>
-                  <div className="text-[11px] text-gray-500 mt-1">{desc}</div>
-                </button>
-              ))}
+            <div className="mt-3 flex items-start gap-2.5 p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl text-xs text-emerald-900">
+              <span className="text-base shrink-0 mt-0.5">📄</span>
+              <div>
+                <div className="font-bold">รองรับเอกสาร 2 รูปแบบ:</div>
+                <div className="text-gray-600 text-[11px] mt-0.5 leading-relaxed">
+                  1) <strong>ป้าย Nameplate บนตัวเครื่อง</strong>: สำหรับสแกน Model, Brand, Serial No., พิกัดกำลังไฟ<br />
+                  2) <strong>Product Specifications Sheet (Datasheet)</strong>: สำหรับสแกนสเปกครบถ้วน เช่น ขนาด &amp; น้ำหนัก, Utility, มาตรฐาน, และเงื่อนไขการทำงาน
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -709,7 +900,7 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
               </svg>
               <div className="text-xs text-white/90 bg-black/50 px-3 py-1 rounded-full font-medium">
-                กำลังอ่านป้าย Nameplate ด้วย AI...
+                กำลังสแกนและอ่านข้อมูลด้วย AI...
               </div>
             </div>
           </div>
@@ -728,10 +919,10 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
               ></path>
             </svg>
             <div>
-              <div className="font-bold text-rose-900 text-sm mb-1">อ่านป้าย Nameplate ไม่สำเร็จ</div>
+              <div className="font-bold text-rose-900 text-sm mb-1">สแกนข้อมูลจากรูปภาพไม่สำเร็จ</div>
               <p className="text-xs text-rose-800 leading-relaxed">{scanError}</p>
               <p className="text-[11px] text-rose-600/90 mt-2">
-                หรือเลือกแท็บ &quot;ตัวอย่างเนมเพลท&quot; เพื่อใช้ข้อมูลตัวอย่างแทน
+                กรุณาถ่ายภาพใหม่อีกครั้ง หรือเลือกไฟล์ภาพที่มีความคมชัดและแสงสว่างเพียงพอ
               </p>
             </div>
           </div>
@@ -753,7 +944,7 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
             <div className="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-slate-700">
               {scannedImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img id="scannedImagePreview" src={scannedImage} alt="Nameplate Preview" className="w-full h-full object-cover" />
+                <img id="scannedImagePreview" src={scannedImage} alt="Scanned Preview" className="w-full h-full object-cover" />
               ) : null}
               {/* Laser Scan Line Effect */}
               <div
@@ -780,7 +971,7 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
             <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 text-xs flex flex-col justify-between">
               <div>
                 <div className="font-bold text-emerald-900 text-sm mb-2 flex items-center gap-1.5">
-                  <span>ข้อมูลที่ตรวจพบจากป้าย Nameplate</span>
+                  <span>ข้อมูลที่ตรวจพบจากรูปภาพ</span>
                 </div>
                 <div className="space-y-1.5 max-h-[170px] overflow-y-auto pr-1" id="extracted-fields-list">
                   {extracted.map(([label, v]) => (
@@ -795,7 +986,7 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
                 {scanNote ? scanNote : "พร้อมนำข้อมูลข้างต้นกรอกลงในฟอร์มทันที"}
                 {scanConfidence ? (
                   <span className="block text-emerald-600/80 font-normal mt-1">
-                    ช่องที่ไม่มีข้อมูลบนป้าย กรุณากรอกเองในฟอร์ม
+                    ช่องที่ไม่มีข้อมูลบนป้ายหรือเอกสาร กรุณากรอกเองในฟอร์ม
                   </span>
                 ) : null}
               </div>
@@ -825,9 +1016,3 @@ function PhotoScanModalBody({ onClose, onApply, role, buyerAllowedCategories }: 
   );
 }
 
-const PRESET_BUTTONS: [string, string, string][] = [
-  ["daikin", "Daikin Inverter FTV50", "ตู้แช่เย็น / เครื่องทำความเย็น (18,000 BTU)"],
-  ["trane", "Trane CenTraVac Chiller", "เครื่องทำน้ำเย็น Chiller 500 Ton"],
-  ["schneider", "Schneider VarSet Cap Bank", "ตู้ควบคุมระบบไฟฟ้า & Cap Bank 400kVAR"],
-  ["hikvision", "Hikvision NVR & 4K CCTV", "ระบบความปลอดภัย NVR 32CH DarkFighter"],
-];

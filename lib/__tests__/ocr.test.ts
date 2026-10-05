@@ -84,6 +84,21 @@ describe("mapReadingToFields", () => {
     });
     expect(fields).toEqual({});
   });
+
+  it("maps product specification sheet fields into form keys", () => {
+    const fields = mapReadingToFields({
+      utility: "Electricity 380V 3-Phase 50Hz, Chilled Water 7°C",
+      operatingCondition: "Ambient 0-45°C, RH 20-90%",
+      functional: "Continuous 24/7 cooling for cold storage",
+      usefulLife: "10 ปี",
+      designLife: "15 ปี",
+    });
+    expect(fields.util).toBe("Electricity 380V 3-Phase 50Hz, Chilled Water 7°C");
+    expect(fields.opc).toBe("Ambient 0-45°C, RH 20-90%");
+    expect(fields.func).toBe("Continuous 24/7 cooling for cold storage");
+    expect(fields.life).toBe("10 ปี");
+    expect(fields.design).toBe("15 ปี");
+  });
 });
 
 describe("parseOcrResponse", () => {
@@ -119,6 +134,19 @@ describe("parseOcrResponse", () => {
   it("assumes a nameplate when the flag is missing, so partial reads still apply", () => {
     const result = parseOcrResponse(JSON.stringify({ brand: "Trane" }));
     expect(result.isNameplate).toBe(true);
+    expect(result.fields.brand).toBe("Trane");
+  });
+
+  it("detects docType as spec_sheet when provided", () => {
+    const result = parseOcrResponse(
+      JSON.stringify({
+        isNameplate: true,
+        docType: "spec_sheet",
+        brand: "Trane",
+        confidence: "high",
+      }),
+    );
+    expect(result.docType).toBe("spec_sheet");
     expect(result.fields.brand).toBe("Trane");
   });
 

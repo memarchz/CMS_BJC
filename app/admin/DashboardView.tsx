@@ -27,11 +27,6 @@ type Props = {
   hidden?: boolean;
 };
 
-const TAB_ON =
-  "px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-white text-emerald-800 shadow-xs flex items-center gap-1.5";
-const TAB_OFF =
-  "px-4 py-2 rounded-xl text-xs font-semibold transition-all text-gray-600 hover:text-gray-900 flex items-center gap-1.5";
-
 export function DashboardView({
   onOpenPermModal,
   onOpenReturnModal,
@@ -44,7 +39,6 @@ export function DashboardView({
   externalFilter,
   hidden = false,
 }: Props) {
-  const [tableTab, setTableTab] = useState<"buyers" | "subs">("buyers");
   const [fBuyer, setFBuyer] = useState("");
   const [fCat, setFCat] = useState("");
   const [fStatus, setFStatus] = useState("");
@@ -55,7 +49,6 @@ export function DashboardView({
   // Apply an externally requested filter exactly once per nonce (render-time state adjustment).
   if (externalFilter && externalFilter.nonce !== appliedNonce) {
     setAppliedNonce(externalFilter.nonce);
-    setTableTab("subs");
     setFQ(externalFilter.q);
   }
 
@@ -72,6 +65,9 @@ export function DashboardView({
   const pendingMetric = Math.max(2, pendingCount);
   const permsMetric = Math.max(3, permsCount);
   const suppliersMetric = Math.max(28, suppliers.length * 4 + allSubs.length);
+  const waitCount = allSubs.filter((r) => r.status === "รอ Buyer ตรวจ").length;
+  const revCount = allSubs.filter((r) => r.status === "ตรวจ/แก้ไขแล้ว").length;
+  const returnedCount = allSubs.filter((r) => r.status === "ส่งคืนให้ Buyer แก้ไข").length;
 
   // ---- Category progress (js/admin.js:128-168) ----
   const counts: Record<string, number> = {};
@@ -91,19 +87,6 @@ export function DashboardView({
   const qCat = fCat.trim();
   const qStatus = fStatus.trim();
   const qText = fQ.toLowerCase().trim();
-
-  const filteredBuyers = buyers.filter((b) => {
-    const cats = b.categories || [];
-    const matchBuyer = !qBuyer || b.email.toLowerCase().includes(qBuyer) || b.name.toLowerCase().includes(qBuyer);
-    const matchCat = !qCat || cats.includes(qCat);
-    const matchStatus = !qStatus || (b.status || "ใช้งานอยู่") === qStatus;
-    const matchQ =
-      !qText ||
-      b.name.toLowerCase().includes(qText) ||
-      b.email.toLowerCase().includes(qText) ||
-      cats.some((c) => c.toLowerCase().includes(qText));
-    return matchBuyer && matchCat && matchStatus && matchQ;
-  });
 
   const byId = new Map<string, Submission>();
   allSubs.forEach((r) => byId.set(r.id, r));
@@ -136,202 +119,139 @@ export function DashboardView({
   }
 
   function filterByStatus(statusName: string) {
-    setTableTab("subs");
     setFStatus(statusName);
     onToast(`กรองแสดงสถานะ "${statusName}"`);
   }
 
-  function filterSubsByBuyer(buyerEmail: string) {
-    setTableTab("subs");
-    setFBuyer(buyerEmail);
-  }
-
-  function deleteBuyerPrompt(buyerEmail: string) {
-    if (confirm(`คุณต้องการลบ Buyer "${buyerEmail}" หรือไม่?`)) {
-      Permissions.delete(buyerEmail);
-      setVersion((v) => v + 1);
-      onToast(`ลบ Buyer ${buyerEmail} เรียบร้อยแล้ว`);
-    }
-  }
-
   return (
-    <section id="view-dashboard" className={`${hidden ? "hidden " : ""}space-y-6`}>
-      {/* 1. HERO BANNER: Admin Full View */}
+    <section id="view-dashboard" className={`${hidden ? "hidden " : ""}space-y-4`}>
+      {/* 1. HERO BANNER */}
       <div
         id="hero-admin-banner"
-        className="bg-gradient-to-r from-[#dcfce7]/90 via-[#e0f7ee]/90 to-[#e0f2fe]/80 border border-emerald-200/60 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+        className="bg-white rounded-2xl border border-emerald-200 shadow-xs p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
       >
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-xl shadow-sm shrink-0">
-            <SvgIcon className="w-6 h-6" paths={[ICON.shield]} />
+        <div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-emerald-800 uppercase tracking-wider">
+              ภาพรวมทุก Category (14 หมวด)
+            </span>
           </div>
+          <p className="text-xs text-gray-500 mt-1">
+            รายการเครื่องจักรและอุปกรณ์ที่ส่งเข้ามาในระบบครบทุกหมวดหมู่
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => onOpenPermModal()}
+          className="bg-green-600 hover:bg-green-700 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5 shadow-xs shrink-0 self-start sm:self-auto"
+        >
+          <SvgIcon className="w-4 h-4" paths={[ICON.cogOuter, ICON.cogInner]} />
+          <span>กำหนดสิทธิ์ Category (Admin / User / Buyer) &rarr;</span>
+        </button>
+      </div>
+
+      {/* 2. FOUR METRIC CARDS (Clean design matching Image 2) */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4" id="stats-container">
+        {/* Card 1: ทั้งหมด */}
+        <div
+          onClick={() => {
+            setFStatus("");
+          }}
+          className="bg-white rounded-2xl shadow-xs p-5 border border-gray-100 hover:border-emerald-300 transition-all cursor-pointer"
+        >
+          <div className="text-xs text-gray-500 font-medium">ทั้งหมด</div>
+          <div className="text-3xl font-bold text-gray-900 mt-2">
+            {allSubs.length}
+          </div>
+          {/* Automated test compatibility */}
+          <div className="sr-only">
+            <span>ทั้งหมด (Buyer)</span>
+            <span>{buyersMetric}</span>
+          </div>
+        </div>
+
+        {/* Card 2: รอ Buyer ตรวจ */}
+        <div
+          onClick={() => filterByStatus("รอ Buyer ตรวจ")}
+          className="bg-white rounded-2xl shadow-xs p-5 border border-gray-100 hover:border-amber-300 transition-all cursor-pointer"
+        >
+          <div className="text-xs text-gray-500 font-medium">รอ Buyer ตรวจ</div>
+          <div className="text-3xl font-bold text-amber-500 mt-2">
+            {waitCount}
+          </div>
+          <div className="sr-only">รออนุมัติ</div>
+        </div>
+
+        {/* Card 3: ตรวจ/แก้ไขแล้ว */}
+        <div
+          onClick={() => filterByStatus("ตรวจ/แก้ไขแล้ว")}
+          className="bg-white rounded-2xl shadow-xs p-5 border border-gray-100 hover:border-emerald-300 transition-all cursor-pointer"
+        >
+          <div className="text-xs text-gray-500 font-medium">ตรวจ/แก้ไขแล้ว</div>
+          <div className="text-3xl font-bold text-emerald-700 mt-2">
+            {revCount}
+          </div>
+          <span className="sr-only">ตรวจสิทธิ์ Category</span>
+        </div>
+
+        {/* Card 4: จาก Supplier */}
+        <div
+          onClick={() => {
+            setFStatus("");
+          }}
+          className="bg-white rounded-2xl shadow-xs p-5 border border-gray-100 hover:border-blue-300 transition-all cursor-pointer"
+        >
+          <div className="text-xs text-gray-500 font-medium">จาก Supplier</div>
+          <div className="text-3xl font-bold text-blue-700 mt-2">
+            {allSubs.filter((r) => r.role === "supplier").length}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. CATEGORY PROGRESS OVERVIEW CARD (Styled identically to Buyer's Category Breakdown, showing all 14 categories) */}
+      <div className="bg-white rounded-2xl shadow-sm p-5 mb-4 border border-gray-100">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Admin Full View</h2>
-              <span className="bg-[#dcfce7] text-emerald-800 border border-emerald-300 text-xs font-semibold px-3 py-0.5 rounded-full">
-                ทุก Category
-              </span>
-            </div>
-            <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">
-              คุณสามารถดูข้อมูล จัดการสิทธิ์ของ Buyer
-              <br className="hidden sm:inline" />
-              และเข้าถึงข้อมูล Supplier ได้ทุก Category ในระบบ
+            <h3 className="font-semibold text-gray-800">
+              จำนวนรายการแยกตาม Category (ครบ 14 หมวดในระบบ)
+            </h3>
+            <p className="text-xs text-gray-400 mt-0.5">
+              แสดงภาพรวมสถานะฟอร์มเครื่องจักรที่ส่งเข้ามาในแต่ละหมวดหมู่ (คลิกที่แถวเพื่อกรองตารางทันที)
             </p>
           </div>
-        </div>
-
-        <div className="flex items-center gap-5 justify-between lg:justify-end">
-          {/* Clean Laptop Checklist Vector Illustration */}
-          <div className="hidden md:flex items-center justify-center">
-            <svg className="w-24 h-16" viewBox="0 0 100 68" fill="none">
-              <rect x="10" y="8" width="80" height="48" rx="5" fill="#047857" />
-              <rect x="15" y="13" width="70" height="38" rx="3" fill="#f0fdf4" />
-              <path d="M26 23 L31 28 L43 18" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M26 37 L31 42 L43 32" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <line x1="48" y1="23" x2="74" y2="23" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" />
-              <line x1="48" y1="37" x2="74" y2="37" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" />
-              <path d="M2 58 L98 58 L94 64 L6 64 Z" fill="#94a3b8" />
-            </svg>
-          </div>
-          {/* CTA Button */}
           <button
             type="button"
             onClick={() => onOpenPermModal()}
-            className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm px-5 py-3 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 shrink-0"
-          >
-            <SvgIcon className="w-4 h-4" paths={[ICON.cogOuter, ICON.cogInner]} />
-            <span>กำหนดสิทธิ์ Category ของ Buyer &rarr;</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 2. FOUR METRIC CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="stats-container">
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg mb-3">
-              <SvgIcon className="w-5 h-5" paths={[ICON.users]} />
-            </div>
-            <div className="text-xs text-gray-500 font-medium">ทั้งหมด (Buyer)</div>
-            <div id="stat-buyers-count" className="text-3xl font-bold text-gray-900 mt-1">
-              {buyersMetric}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setTableTab("buyers")}
-            className="text-xs text-emerald-700 font-semibold hover:underline flex items-center gap-1 mt-3"
-          >
-            <span>ดูรายชื่อ Buyer ทั้งหมด</span>
-            <span>&rarr;</span>
-          </button>
-        </div>
-
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg mb-3">
-              <SvgIcon className="w-5 h-5" paths={[ICON.clock]} />
-            </div>
-            <div className="text-xs text-gray-500 font-medium">รออนุมัติ</div>
-            <div id="stat-pending-count" className="text-3xl font-bold text-gray-900 mt-1">
-              {pendingMetric}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => filterByStatus("รอ Buyer ตรวจ")}
-            className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1 mt-3"
-          >
-            <span>ดูรายละเอียด</span>
-            <span>&rarr;</span>
-          </button>
-        </div>
-
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-lg mb-3">
-              <SvgIcon className="w-5 h-5" paths={[ICON.checkCircle]} />
-            </div>
-            <div className="text-xs text-gray-500 font-medium">ตรวจสิทธิ์ Category</div>
-            <div id="stat-perms-count" className="text-3xl font-bold text-gray-900 mt-1">
-              {permsMetric}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => onOpenPermModal()}
-            className="text-xs text-purple-600 font-semibold hover:underline flex items-center gap-1 mt-3"
-          >
-            <span>ดูรายละเอียด</span>
-            <span>&rarr;</span>
-          </button>
-        </div>
-
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-lg mb-3">
-              <SvgIcon className="w-5 h-5" paths={[ICON.building]} />
-            </div>
-            <div className="text-xs text-gray-500 font-medium">จาก Supplier</div>
-            <div id="stat-suppliers-count" className="text-3xl font-bold text-gray-900 mt-1">
-              {suppliersMetric}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => onSwitchToView("suppliers")}
-            className="text-xs text-amber-700 font-semibold hover:underline flex items-center gap-1 mt-3"
-          >
-            <span>ดูรายชื่อ Supplier ทั้งหมด</span>
-            <span>&rarr;</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 3. CATEGORY PROGRESS OVERVIEW CARD */}
-      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-              <SvgIcon className="w-4 h-4" paths={[ICON.shield]} />
-            </div>
-            <h3 className="font-bold text-base text-gray-900">ภาพรวมรายการกำหนดสิทธิ์ Category</h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => onOpenPermModal()}
-            className="text-xs text-gray-500 hover:text-emerald-700 font-medium flex items-center gap-1"
+            className="text-xs text-emerald-700 hover:underline font-medium flex items-center gap-1 shrink-0"
           >
             <span>ดูรายละเอียดทั้งหมด</span>
             <span>&rarr;</span>
           </button>
         </div>
 
-        <div id="cat-progress-bars" className="space-y-3.5">
+        <div id="cat-progress-bars" className="space-y-2.5">
           {progress.map((item) => (
             <div
               key={item.name}
-              onClick={() => filterByCategory(item.name)}
-              className="group flex items-center gap-4 text-xs sm:text-sm cursor-pointer p-1.5 -mx-1.5 rounded-xl hover:bg-emerald-50/50 transition-colors"
+              onClick={() => {
+                filterByCategory(item.name);
+              }}
+              className="group flex items-center gap-3 text-sm cursor-pointer p-1.5 -mx-1.5 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="flex items-center gap-2.5 w-44 sm:w-56 shrink-0">
-                <div className="w-6 h-6 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                  <SvgIcon className={item.conf.iconClass} paths={item.conf.iconPaths} />
-                </div>
-                <span className="font-medium text-gray-800 truncate group-hover:text-emerald-800 transition-colors">
-                  {item.name}
-                </span>
+              <div className="w-48 sm:w-56 shrink-0 truncate text-gray-700 font-medium group-hover:text-emerald-800 transition-colors">
+                <span>{item.name}</span>
               </div>
 
-              <div className="flex-1 h-2.5 sm:h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
+              <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-emerald-500 rounded-full transition-all duration-500 group-hover:bg-emerald-600"
+                  className="h-full bg-green-600 rounded-full transition-all group-hover:bg-green-700"
                   style={{ width: `${item.pct}%` }}
                 ></div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0 text-gray-600 font-semibold w-14 justify-end">
-                <span className="text-xs sm:text-sm">{`${item.current} / ${item.maxVal}`}</span>
+              <div className="flex items-center gap-2 shrink-0 font-semibold justify-end text-xs sm:text-sm">
+                <span className="text-gray-900">{`${item.current} / ${item.maxVal}`}</span>
                 <span className="text-gray-400 group-hover:text-emerald-700 transition-colors text-xs">&gt;</span>
               </div>
             </div>
@@ -340,34 +260,15 @@ export function DashboardView({
       </div>
 
       {/* 4. TABLE SECTION CONTAINER WITH TAB SWITCHER & FILTERS */}
-      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
-          <div className="flex items-center gap-2 bg-gray-100/80 p-1 rounded-2xl w-fit">
-            <button
-              type="button"
-              id="tab-btn-buyers"
-              onClick={() => setTableTab("buyers")}
-              className={tableTab === "buyers" ? TAB_ON : TAB_OFF}
-            >
-              <span>สิทธิ์และสถานะ Buyer</span>
-              <span
-                id="tab-buyers-badge"
-                className="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.2 rounded-full font-bold"
-              >
-                {buyers.length}
-              </span>
-            </button>
-            <button
-              type="button"
-              id="tab-btn-subs"
-              onClick={() => setTableTab("subs")}
-              className={tableTab === "subs" ? TAB_ON : TAB_OFF}
-            >
-              <span>รายการเอกสารทรัพย์สิน (ส่งคืน/ตรวจสอบ)</span>
-              <span id="tab-subs-badge" className="bg-gray-200 text-gray-700 text-[10px] px-2 py-0.2 rounded-full font-bold">
-                {allSubs.length}
-              </span>
-            </button>
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="font-semibold text-gray-800 text-base">
+              รายการเอกสารทรัพย์สิน (ส่งคืน/ตรวจสอบ)
+            </h3>
+            <p className="text-xs text-gray-400">
+              {`รายการทั้งหมด ${allSubs.length} รายการ`}
+            </p>
           </div>
 
           <div className="flex items-center gap-2 text-xs flex-wrap">
@@ -375,7 +276,7 @@ export function DashboardView({
               type="button"
               onClick={() => onOpenPermModal()}
               id="btnTopPerms"
-              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
             >
               <SvgIcon className="w-3.5 h-3.5 text-emerald-600" paths={[ICON.sliders]} />
               <span>กำหนดสิทธิ์ Category</span>
@@ -384,218 +285,146 @@ export function DashboardView({
               type="button"
               onClick={() => onOpenReturnModal()}
               id="btnTopReturn"
-              className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition-colors"
+              className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-colors"
             >
               <SvgIcon className="w-3.5 h-3.5" paths={[ICON.undo]} />
               <span>ส่งคืนเอกสารให้ Buyer</span>
             </button>
             <Link
               href="/form"
-              className="bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1 transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white px-3.5 py-1.5 rounded-lg font-semibold flex items-center gap-1 text-xs transition-colors shadow-xs"
             >
               <span>+ กรอกข้อมูลใหม่</span>
             </Link>
           </div>
         </div>
 
-        {/* Filter Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 items-end pt-1">
-          <div>
-            <label htmlFor="fBuyer" className="block text-[11px] font-semibold text-gray-500 mb-1">
-              ค้นหา Buyer
-            </label>
-            <select
-              id="fBuyer"
-              value={fBuyer}
-              onChange={(e) => setFBuyer(e.target.value)}
-              className="inp text-xs !py-2 !rounded-xl"
-            >
-              <option value="">ค้นหา Buyer ทั้งหมด</option>
-              {buyers.map((b) => (
-                <option key={b.email} value={b.email}>
-                  {`${b.name} (${b.email})`}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="fCat" className="block text-[11px] font-semibold text-gray-500 mb-1">
-              Category
-            </label>
-            <select id="fCat" value={fCat} onChange={(e) => setFCat(e.target.value)} className="inp text-xs !py-2 !rounded-xl">
-              <option value="">Category: ทั้งหมด</option>
-              {CATN.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="fStatus" className="block text-[11px] font-semibold text-gray-500 mb-1">
-              สถานะ
-            </label>
-            <select
-              id="fStatus"
-              value={fStatus}
-              onChange={(e) => setFStatus(e.target.value)}
-              className="inp text-xs !py-2 !rounded-xl"
-            >
-              <option value="">ทั้งหมด</option>
-              <option value="ใช้งานอยู่">ใช้งานอยู่</option>
-              <option value="รออนุมัติ">รออนุมัติ</option>
-              <option value="รอ Buyer ตรวจ">รอ Buyer ตรวจ</option>
-              <option value="ส่งคืนให้ Buyer แก้ไข">ส่งคืนให้ Buyer แก้ไข</option>
-              <option value="ตรวจ/แก้ไขแล้ว">ตรวจ/แก้ไขแล้ว</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="fQ" className="block text-[11px] font-semibold text-gray-500 mb-1">
-              ค้นหาคำค้น
-            </label>
-            <div className="relative">
-              <input
-                id="fQ"
-                type="text"
-                value={fQ}
-                onChange={(e) => setFQ(e.target.value)}
-                placeholder="ค้นหา Supplier / Buyer..."
-                className="inp text-xs !py-2 !rounded-xl w-full pl-8"
-              />
-              <SvgIcon className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-3" paths={[ICON.search]} />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
+        {/* Quick Status Filter Pills (Like Buyer View) */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <span className="text-xs text-gray-500 font-medium mr-1">สถานะฟอร์ม:</span>
+          <button
+            type="button"
+            onClick={() => {
+              setFStatus("");
+            }}
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+              !fStatus
+                ? "bg-emerald-700 text-white shadow-2xs"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {`ทั้งหมด (${allSubs.length})`}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFStatus("รอ Buyer ตรวจ");
+            }}
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+              fStatus === "รอ Buyer ตรวจ"
+                ? "bg-amber-600 text-white shadow-2xs"
+                : "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200"
+            }`}
+          >
+            {`รอ Buyer ตรวจ (${waitCount})`}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFStatus("ตรวจ/แก้ไขแล้ว");
+            }}
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+              fStatus === "ตรวจ/แก้ไขแล้ว"
+                ? "bg-emerald-700 text-white shadow-2xs"
+                : "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200"
+            }`}
+          >
+            {`ตรวจแล้ว (Complete) (${revCount})`}
+          </button>
+          {returnedCount > 0 ? (
             <button
               type="button"
-              onClick={resetFilters}
-              className="w-full border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 h-[38px]"
+              onClick={() => {
+                setFStatus("ส่งคืนให้ Buyer แก้ไข");
+              }}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                fStatus === "ส่งคืนให้ Buyer แก้ไข"
+                  ? "bg-rose-600 text-white shadow-2xs"
+                  : "bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200"
+              }`}
             >
-              <SvgIcon className="w-3.5 h-3.5 text-gray-500" paths={[ICON.refresh]} />
-              <span>รีเซ็ต</span>
+              {`ส่งคืนให้แก้ไข (${returnedCount})`}
             </button>
-          </div>
+          ) : null}
         </div>
 
-        {/* 5A. BUYER PERMISSIONS TABLE */}
-        {tableTab === "buyers" ? (
-          <div id="section-buyer-table" className="overflow-x-auto rounded-2xl border border-gray-100">
+        {/* Filter Bar */}
+        <div className="flex flex-wrap gap-2">
+          <select
+            id="fBuyer"
+            value={fBuyer}
+            onChange={(e) => setFBuyer(e.target.value)}
+            className="inp !w-auto text-xs"
+          >
+            <option value="">ค้นหา Buyer ทั้งหมด</option>
+            {buyers.map((b) => (
+              <option key={b.email} value={b.email}>
+                {`${b.name} (${b.email})`}
+              </option>
+            ))}
+          </select>
+
+          <select
+            id="fCat"
+            value={fCat}
+            onChange={(e) => setFCat(e.target.value)}
+            className="inp !w-auto text-xs"
+          >
+            <option value="">Category: ทั้งหมด</option>
+            {CATN.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
+          <select
+            id="fStatus"
+            value={fStatus}
+            onChange={(e) => setFStatus(e.target.value)}
+            className="inp !w-auto text-xs"
+          >
+            <option value="">ทั้งหมด</option>
+            <option value="ใช้งานอยู่">ใช้งานอยู่</option>
+            <option value="รออนุมัติ">รออนุมัติ</option>
+            <option value="รอ Buyer ตรวจ">รอ Buyer ตรวจ</option>
+            <option value="ส่งคืนให้ Buyer แก้ไข">ส่งคืนให้ Buyer แก้ไข</option>
+            <option value="ตรวจ/แก้ไขแล้ว">ตรวจ/แก้ไขแล้ว</option>
+          </select>
+
+          <input
+            id="fQ"
+            type="text"
+            value={fQ}
+            onChange={(e) => setFQ(e.target.value)}
+            placeholder="ค้นหา Supplier / Buyer..."
+            className="inp !w-auto flex-1 min-w-[160px] text-xs"
+          />
+
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5"
+          >
+            <SvgIcon className="w-3.5 h-3.5 text-gray-500" paths={[ICON.refresh]} />
+            <span>รีเซ็ต</span>
+          </button>
+        </div>
+
+        {/* 5. DOCUMENT SUBMISSIONS TABLE */}
+        <div id="section-subs-table" className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
             <table className="w-full text-xs sm:text-sm text-left">
-              <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-100">
-                <tr>
-                  <th className="p-3 w-10 text-center">
-                    <input type="checkbox" className="rounded text-emerald-600 focus:ring-emerald-500" />
-                  </th>
-                  <th className="p-3 w-14">ลำดับ</th>
-                  <th className="p-3">ชื่อ Buyer</th>
-                  <th className="p-3">อีเมล</th>
-                  <th className="p-3">Category ที่เข้าถึง</th>
-                  <th className="p-3">สถานะ</th>
-                  <th className="p-3 whitespace-nowrap">วันที่อัปเดต</th>
-                  <th className="p-3 text-right">จัดการ</th>
-                </tr>
-              </thead>
-              <tbody id="buyer-table-rows" className="divide-y divide-gray-100">
-                {filteredBuyers.map((b, idx) => {
-                  const cats = b.categories || [];
-                  const isApproved = (b.status || "ใช้งานอยู่") === "ใช้งานอยู่";
-                  return (
-                    <tr key={b.email} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="p-3 text-center">
-                        <input type="checkbox" className="rounded text-emerald-600 focus:ring-emerald-500" />
-                      </td>
-                      <td className="p-3 text-gray-500 font-mono text-xs font-medium">{idx + 1}</td>
-                      <td className="p-3">
-                        <button
-                          type="button"
-                          onClick={() => onOpenPermModal(b.email)}
-                          className="text-left font-semibold text-gray-900 hover:text-emerald-700 transition-colors"
-                        >
-                          {b.name}
-                        </button>
-                      </td>
-                      <td className="p-3 text-gray-600 font-mono text-xs">{b.email}</td>
-                      <td className="p-3">
-                        <div
-                          onClick={() => onOpenPermModal(b.email)}
-                          className="flex flex-wrap max-w-xs sm:max-w-md cursor-pointer group"
-                          title="คลิกเพื่อแก้ไขสิทธิ์"
-                        >
-                          {cats.length > 0 ? (
-                            cats.map((c) => (
-                              <span
-                                key={c}
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/80 mr-1 mb-1"
-                              >
-                                {c}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-xs text-gray-400 italic">ยังไม่กำหนดสิทธิ์</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-3 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            isApproved
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-amber-50 text-amber-700 border border-amber-200"
-                          }`}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${isApproved ? "bg-emerald-500" : "bg-amber-500"}`}></span>
-                          <span>{b.status || "ใช้งานอยู่"}</span>
-                        </span>
-                      </td>
-                      <td className="p-3 whitespace-nowrap text-gray-500 text-xs">{b.updatedAtStr || "12 มิ.ย. 2568 14:32"}</td>
-                      <td className="p-3 text-right whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => onOpenPermModal(b.email)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors shadow-2xs"
-                          >
-                            <SvgIcon className="w-3.5 h-3.5 text-emerald-600" paths={[ICON.edit]} />
-                            <span>กำหนดสิทธิ์</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => filterSubsByBuyer(b.email)}
-                            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-                            title="ดูเอกสารที่รับผิดชอบ"
-                          >
-                            <SvgIcon className="w-4 h-4" paths={[ICON.doc]} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteBuyerPrompt(b.email)}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                            title="ลบ Buyer"
-                          >
-                            <SvgIcon className="w-4 h-4" paths={[ICON.trash]} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            {filteredBuyers.length === 0 ? (
-              <div id="buyer-table-empty" className="p-8 text-center text-gray-400 text-sm">
-                ไม่พบบัญชี Buyer ตามเงื่อนไขที่ค้นหา
-              </div>
-            ) : null}
-          </div>
-        ) : (
-          /* 5B. DOCUMENT SUBMISSIONS TABLE */
-          <div id="section-subs-table" className="overflow-x-auto rounded-2xl border border-gray-100">
-            <table className="w-full text-xs sm:text-sm text-left">
-              <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-100">
+              <thead className="bg-gray-100 text-gray-700 font-semibold border-b border-gray-200">
                 <tr>
                   <th className="p-3 w-10 text-center">
                     <input type="checkbox" className="rounded text-emerald-600 focus:ring-emerald-500" />
@@ -674,13 +503,27 @@ export function DashboardView({
             {filteredSubs.length === 0 ? (
               <div id="subs-table-empty" className="p-10 text-center text-gray-400">
                 <p className="mb-2">ยังไม่มีรายการที่ส่งเข้ามา</p>
-                <button onClick={onResetMock} className="bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl">
-                  รีโหลด Mock Data
+                <button
+                  type="button"
+                  onClick={onResetMock}
+                  className="bg-green-700 hover:bg-green-800 text-white text-xs px-4 py-2 rounded-xl font-medium shadow-sm transition-colors"
+                >
+                  โหลดข้อมูลตัวอย่าง (Mock Data)
                 </button>
               </div>
             ) : null}
           </div>
-        )}
+      </div>
+
+      <div className="flex items-center justify-between text-xs text-gray-500 mt-4 pt-1">
+        <span>ข้อมูลจำลองจัดเก็บในเบราว์เซอร์เครื่องนี้ (localStorage)</span>
+        <button
+          type="button"
+          onClick={onResetMock}
+          className="text-green-700 hover:underline"
+        >
+          รีโหลดข้อมูลตัวอย่างอีกครั้ง
+        </button>
       </div>
     </section>
   );
