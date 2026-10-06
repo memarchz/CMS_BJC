@@ -28,11 +28,10 @@ describe("/login page", () => {
     expect(screen.getByDisplayValue("admin@demo.co.th")).toBeInTheDocument();
   });
 
-  it("shows the buyer demo pills only when the buyer tab is active", () => {
+  it("pre-fills buyer demo credentials when the buyer tab is active", () => {
     render(<Page />);
-    expect(screen.queryByText("Buyer 1")).toBeNull();
     fireEvent.click(screen.getByText("Buyer"));
-    expect(screen.getByText("Buyer 1")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("buyer@demo.co.th")).toBeInTheDocument();
   });
 
   it("logs in successfully and redirects to the role's home route", () => {

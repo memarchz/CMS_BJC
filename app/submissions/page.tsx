@@ -438,18 +438,7 @@ export default function Page() {
                     </td>
                   )}
                   <td className="p-3 whitespace-nowrap">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <StatusBadge status={r.status} />
-                      {r.status === "ตรวจ/แก้ไขแล้ว" ? (
-                        <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-1.5 py-0.5 rounded">
-                          Complete
-                        </span>
-                      ) : r.status === "รอ Buyer ตรวจ" ? (
-                        <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/80 border border-amber-300 px-1.5 py-0.5 rounded">
-                          Pending
-                        </span>
-                      ) : null}
-                    </div>
+                    <StatusBadge status={r.status} />
                   </td>
                   <td className="p-3 text-right whitespace-nowrap">
                     <button

@@ -21,15 +21,8 @@ function LoginPage() {
   const queryRole = searchParams.get("role");
   const initialRole = queryRole && RL[queryRole] ? queryRole : "supplier";
 
-  function credsFor(
-    r: string,
-    buyerEmail: string,
-  ): { mail: string; pw: string } {
-    const seedUser =
-      r === "buyer"
-        ? SEED.find((x) => x.email === buyerEmail) ||
-          SEED.find((x) => x.role === "buyer")
-        : SEED.find((x) => x.role === r);
+  function credsFor(r: string): { mail: string; pw: string } {
+    const seedUser = SEED.find((x) => x.role === r);
     return {
       mail: seedUser ? seedUser.email : "",
       pw: seedUser ? seedUser.pw : "",
@@ -37,20 +30,14 @@ function LoginPage() {
   }
 
   const [role, setRole] = useState(initialRole);
-  const [buyerDemo, setBuyerDemo] = useState("buyer@demo.co.th");
-  const [mail, setMail] = useState(
-    () => credsFor(initialRole, "buyer@demo.co.th").mail,
-  );
-  const [pw, setPw] = useState(
-    () => credsFor(initialRole, "buyer@demo.co.th").pw,
-  );
+  const [mail, setMail] = useState(() => credsFor(initialRole).mail);
+  const [pw, setPw] = useState(() => credsFor(initialRole).pw);
   const [showPw, setShowPw] = useState(false);
   const [err, setErr] = useState(false);
 
-  function applyRole(r: string, buyerEmail: string) {
-    const c = credsFor(r, buyerEmail);
+  function applyRole(r: string) {
+    const c = credsFor(r);
     setRole(r);
-    setBuyerDemo(buyerEmail);
     setMail(c.mail);
     setPw(c.pw);
     setErr(false);
@@ -67,12 +54,12 @@ function LoginPage() {
       if (stored && RL[stored]) r = stored;
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    applyRole(r, "buyer@demo.co.th");
+    applyRole(r);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function switchRole(r: string) {
-    applyRole(r, buyerDemo);
+    applyRole(r);
     localStorage.setItem("selected_role", r);
     try {
       const url = new URL(window.location.href);
@@ -162,43 +149,6 @@ function LoginPage() {
             ))}
           </div>
 
-          {role === "buyer" ? (
-            <div className="mb-4 p-3 bg-emerald-50/80 border border-emerald-200 rounded-2xl text-xs">
-              <div className="text-gray-600 font-semibold mb-2 flex items-center justify-between">
-                <span>เลือกบัญชี Buyer ทดสอบ (สิทธิ์ Category ต่างกัน):</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => applyRole("buyer", "buyer@demo.co.th")}
-                  className={`p-2.5 rounded-xl border bg-white text-left transition-all ${
-                    buyerDemo === "buyer@demo.co.th"
-                      ? "border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs"
-                      : "border-gray-200 hover:border-emerald-300"
-                  }`}
-                >
-                  <div className="font-bold text-emerald-900">Buyer 1</div>
-                  <div className="text-[10px] text-emerald-700 font-medium">
-                    สิทธิ์: เครื่องเย็น & HVAC
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyRole("buyer", "buyer2@demo.co.th")}
-                  className={`p-2.5 rounded-xl border bg-white text-left transition-all ${
-                    buyerDemo === "buyer2@demo.co.th"
-                      ? "border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs"
-                      : "border-gray-200 hover:border-emerald-300"
-                  }`}
-                >
-                  <div className="font-bold text-gray-800">Buyer 2</div>
-                  <div className="text-[10px] text-gray-500 font-medium">
-                    สิทธิ์: ไฟฟ้า & ความปลอดภัย
-                  </div>
-                </button>
-              </div>
-            </div>
-          ) : null}
 
           <label className="text-sm font-medium text-gray-700 block mb-1">
             อีเมล
